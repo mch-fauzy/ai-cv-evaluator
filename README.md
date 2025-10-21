@@ -2,7 +2,7 @@
 
 A modern AI-powered API service for evaluating CVs and project reports against job requirements using RAG (Retrieval-Augmented Generation) and OpenAI GPT models.
 
-🚀 **[Try the Live Demo](https://ai-cv-evaluator-six.vercel.app)** | 📖 **[API Documentation](https://ai-cv-evaluator-six.vercel.app)**
+**[Live Demo - Interactive API Documentation](https://ai-cv-evaluator.onrender.com)**
 
 ## Table of Contents
 
@@ -17,7 +17,7 @@ A modern AI-powered API service for evaluating CVs and project reports against j
   - [Architecture](#architecture)
   - [Technology Stack](#technology-stack)
   - [Key Design Decisions](#key-design-decisions)
-  - [Scalability Considerations](#scalability-considerations)
+  - [Scalability](#scalability)
 
 ## Requirements
 
@@ -143,7 +143,7 @@ The API will be available at:
 
 **Interactive Swagger Documentation is Available Online:**
 
-> 📖 **Access the API docs at:** [https://ai-cv-evaluator-six.vercel.app](https://ai-cv-evaluator-six.vercel.app)
+> 📖 **Access the API docs at:** [https://ai-cv-evaluator.onrender.com](https://ai-cv-evaluator.onrender.com)
 
 ### Local Development
 
@@ -208,10 +208,11 @@ The API includes interactive Swagger documentation when running locally:
 **4. Error Handling**
 - Centralized exception handling
 
-**5. Serverless Deployment**
-- NestJS optimized for Vercel
-- OpenAI API embedding instead of local models (~230MB saved)
-- ChromaDB Cloud for managed vector database
+**5. Deployment**
+- **Platform**: Render (free tier)
+- **Keep-Alive**: Cron-job.org prevents auto-sleep (15 min)
+- **CI/CD**: Auto-deploy on git push
+- **Config**: Infrastructure as code with `render.yaml`
 
 ### Scalability
 
@@ -224,7 +225,8 @@ The API includes interactive Swagger documentation when running locally:
 - Database indexing and query optimization
 - Pagination for large datasets
 
-**Monitoring**
-- Structured logging
-- Health check endpoint
-- Job queue monitoring
+**Monitoring & High Availability**
+- Structured logging for debugging
+- Health check endpoint for uptime monitoring
+- Cron-job.org ensures 24/7 availability (keeps Render free tier awake)
+- Job queue monitoring for background tasks
