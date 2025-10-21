@@ -40,7 +40,7 @@ export class HealthController {
   getHealth(): ApiResult<HealthCheckResponse> {
     const data = this.healthService.getHealth();
     return {
-      message: API_RESPONSE_MESSAGE.SUCCESS_GET_DATA('health status'),
+      message: API_RESPONSE_MESSAGE.successGetData('health status'),
       data,
     };
   }

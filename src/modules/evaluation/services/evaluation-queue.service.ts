@@ -12,7 +12,7 @@ import type { EvaluationJobData } from '../interfaces/evaluation-job-data.interf
 @Injectable()
 export class EvaluationQueueService {
   constructor(
-    @InjectQueue(QUEUE_NAMES.EVALUATION)
+    @InjectQueue(QUEUE_NAMES.evaluation)
     private readonly queue: Queue,
   ) {}
 

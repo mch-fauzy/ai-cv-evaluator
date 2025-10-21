@@ -97,7 +97,7 @@ export class ResultController {
   ): Promise<ApiResult<ResultResponseDto>> {
     const data = await this.resultService.getResult(evaluationId);
     return {
-      message: API_RESPONSE_MESSAGE.SUCCESS_GET_DATA('result'),
+      message: API_RESPONSE_MESSAGE.successGetData('result'),
       data,
     };
   }

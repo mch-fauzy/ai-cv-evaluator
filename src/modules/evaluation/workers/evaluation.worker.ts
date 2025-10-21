@@ -13,7 +13,7 @@ import { OpenAIService } from '../../externals/openai/services/openai.service';
 import { ChromaDBService } from '../../externals/chromadb/services/chromadb.service';
 import { EvaluationStatus } from '../../../common/enums/evaluation-status.enum';
 import { QUEUE_NAMES, JOB_NAMES } from '../../../common/constants/queue.constant';
-import { TransactionUtil } from '../../../utils/transaction.util';
+import { TransactionUtil } from '../../../common/utils/transaction.util';
 
 /**
  * Worker processor for CV evaluation jobs.
@@ -26,7 +26,7 @@ import { TransactionUtil } from '../../../utils/transaction.util';
  * 6. Save results to database
  * 7. Update evaluation status
  */
-@Processor(QUEUE_NAMES.EVALUATION)
+@Processor(QUEUE_NAMES.evaluation)
 export class EvaluationWorker {
   private readonly logger = new Logger(EvaluationWorker.name);
 
@@ -43,7 +43,7 @@ export class EvaluationWorker {
    * Process evaluation job
    * This method is automatically called by Bull when a job is added to the queue
    */
-  @Process(JOB_NAMES.PROCESS_EVALUATION)
+  @Process(JOB_NAMES.processEvaluation)
   async processEvaluation(job: Job<EvaluationJobData>): Promise<void> {
     const { evaluationId, jobTitle, cvFileId, projectFileId } = job.data;
 

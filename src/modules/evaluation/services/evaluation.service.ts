@@ -6,7 +6,7 @@ import { JOB_NAMES } from '../../../common/constants/queue.constant';
 import { Paginated } from '../../../common/interfaces/api-response.interface';
 import { PaginationUtil } from '../../../common/utils/pagination.util';
 import { UploadRepository } from '../../upload/repositories/upload.repository';
-import { TransactionUtil } from '../../../utils/transaction.util';
+import { TransactionUtil } from '../../../common/utils/transaction.util';
 import type { CreateEvaluationDto } from '../dto/request/create-evaluation.dto';
 import { EvaluationResponseDto } from '../dto/response/evaluation-response.dto';
 import { EvaluationListItemDto } from '../dto/response/evaluation-list-item.dto';
@@ -69,7 +69,7 @@ export class EvaluationService {
           projectFileId: newEvaluation.projectFileId,
         };
 
-        await this.queueService.addJob(JOB_NAMES.PROCESS_EVALUATION, jobData);
+        await this.queueService.addJob(JOB_NAMES.processEvaluation, jobData);
 
         return newEvaluation;
       },

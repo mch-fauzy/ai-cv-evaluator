@@ -1,5 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 
+import { MAX_FILE_SIZE, ALLOWED_MIME_TYPES } from '../../../common/constants/file.constant';
 import { FileType } from '../../../common/enums/file-type.enum';
 import { Paginated } from '../../../common/interfaces/api-response.interface';
 import { PaginationUtil } from '../../../common/utils/pagination.util';
@@ -8,8 +9,6 @@ import { UploadQueryDto } from '../dto/upload-query.dto';
 import { UploadResponseDto } from '../dto/response/upload-response.dto';
 import { UploadListItemDto } from '../dto/response/upload-list-item.dto';
 import { UploadRepository } from '../repositories/upload.repository';
-
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 @Injectable()
 export class UploadService {
@@ -35,56 +34,43 @@ export class UploadService {
     const projectFile = files.project[0];
 
     // Validate file types
-    if (cvFile.mimetype !== 'application/pdf') {
-      throw new BadRequestException('CV must be a PDF file');
-    }
-
-    if (projectFile.mimetype !== 'application/pdf') {
-      throw new BadRequestException('Project file must be a PDF file');
+    if (
+      cvFile.mimetype !== ALLOWED_MIME_TYPES.pdf ||
+      projectFile.mimetype !== ALLOWED_MIME_TYPES.pdf
+    ) {
+      throw new BadRequestException('Both CV and project files must be PDF');
     }
 
     // Validate file sizes
-    if (cvFile.size > MAX_FILE_SIZE) {
+    if (cvFile.size > MAX_FILE_SIZE || projectFile.size > MAX_FILE_SIZE) {
       throw new BadRequestException(
-        `CV file size exceeds maximum allowed size of ${MAX_FILE_SIZE / 1024 / 1024}MB`,
+        `File size exceeds maximum allowed size of ${MAX_FILE_SIZE / 1024 / 1024}MB`,
       );
     }
 
-    if (projectFile.size > MAX_FILE_SIZE) {
-      throw new BadRequestException(
-        `Project file size exceeds maximum allowed size of ${MAX_FILE_SIZE / 1024 / 1024}MB`,
-      );
-    }
+    // Upload files to Cloudinary in parallel
+    const [cvUploadResult, projectUploadResult] = await Promise.all([
+      this.cloudinaryService.uploadFile(cvFile, 'cv'),
+      this.cloudinaryService.uploadFile(projectFile, 'project'),
+    ]);
 
-    // Upload CV to Cloudinary
-    const cvUploadResult = await this.cloudinaryService.uploadFile(
-      cvFile,
-      'cv',
-    );
-
-    // Upload Project file to Cloudinary
-    const projectUploadResult = await this.cloudinaryService.uploadFile(
-      projectFile,
-      'project',
-    );
-
-    // Save CV metadata to database
-    const cvFileRecord = await this.uploadRepository.create({
-      cloudinaryPublicId: cvUploadResult.publicId,
-      cloudinaryUrl: cvUploadResult.url,
-      fileType: FileType.CV,
-      fileSize: cvUploadResult.fileSize,
-      originalName: cvFile.originalname,
-    });
-
-    // Save Project file metadata to database
-    const projectFileRecord = await this.uploadRepository.create({
-      cloudinaryPublicId: projectUploadResult.publicId,
-      cloudinaryUrl: projectUploadResult.url,
-      fileType: FileType.PROJECT,
-      fileSize: projectUploadResult.fileSize,
-      originalName: projectFile.originalname,
-    });
+    // Save file metadata to database in parallel
+    const [cvFileRecord, projectFileRecord] = await Promise.all([
+      this.uploadRepository.create({
+        cloudinaryPublicId: cvUploadResult.publicId,
+        cloudinaryUrl: cvUploadResult.url,
+        fileType: FileType.CV,
+        fileSize: cvUploadResult.fileSize,
+        originalName: cvFile.originalname,
+      }),
+      this.uploadRepository.create({
+        cloudinaryPublicId: projectUploadResult.publicId,
+        cloudinaryUrl: projectUploadResult.url,
+        fileType: FileType.PROJECT,
+        fileSize: projectUploadResult.fileSize,
+        originalName: projectFile.originalname,
+      }),
+    ]);
 
     return UploadResponseDto.from(cvFileRecord.id, projectFileRecord.id);
   }

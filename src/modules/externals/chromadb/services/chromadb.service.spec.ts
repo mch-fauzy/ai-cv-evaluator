@@ -61,7 +61,7 @@ describe('ChromaDBService', () => {
   describe('collection name', () => {
     it('should use evaluation_context as collection name', () => {
       expect(service['collectionName']).toBe(
-        CHROMA_COLLECTIONS.EVALUATION_CONTEXT,
+        CHROMA_COLLECTIONS.evaluationContext,
       );
     });
   });

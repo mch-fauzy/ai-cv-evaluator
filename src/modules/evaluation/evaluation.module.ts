@@ -19,7 +19,7 @@ import { QUEUE_NAMES } from '../../common/constants/queue.constant';
   imports: [
     TypeOrmModule.forFeature([Evaluation, Result]),
     BullModule.registerQueue({
-      name: QUEUE_NAMES.EVALUATION,
+      name: QUEUE_NAMES.evaluation,
     }),
     UploadModule,
     OpenAIModule,

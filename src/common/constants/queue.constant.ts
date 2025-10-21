@@ -2,14 +2,14 @@
  * Queue names for different job types
  */
 export const QUEUE_NAMES = {
-  EVALUATION: 'evaluation',
+  evaluation: 'evaluation',
 } as const;
 
 /**
  * Job names for evaluation queue
  */
 export const JOB_NAMES = {
-  PROCESS_EVALUATION: 'process-evaluation',
+  processEvaluation: 'process-evaluation',
 } as const;
 
 /**

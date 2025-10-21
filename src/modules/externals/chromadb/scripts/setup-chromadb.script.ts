@@ -12,7 +12,7 @@ import { OpenAIEmbeddingFunction } from '../utils/chromadb-openai-embedding.util
 export class ChromaDBSetup {
   private readonly logger = new Logger(ChromaDBSetup.name);
   private readonly client: CloudClient;
-  private readonly collectionName = CHROMA_COLLECTIONS.EVALUATION_CONTEXT;
+  private readonly collectionName = CHROMA_COLLECTIONS.evaluationContext;
   private readonly embeddingFunction: OpenAIEmbeddingFunction;
 
   constructor() {
@@ -345,24 +345,24 @@ Implement a performant social media feed with:
 - TypeScript and NestJS backend`,
       ],
       metadatas: [
-        { type: CHROMA_DOCUMENT_TYPES.JOB_DESCRIPTION },
-        { type: CHROMA_DOCUMENT_TYPES.JOB_DESCRIPTION },
-        { type: CHROMA_DOCUMENT_TYPES.JOB_DESCRIPTION },
-        { type: CHROMA_DOCUMENT_TYPES.JOB_DESCRIPTION },
-        { type: CHROMA_DOCUMENT_TYPES.JOB_DESCRIPTION },
-        { type: CHROMA_DOCUMENT_TYPES.CASE_STUDY },
-        { type: CHROMA_DOCUMENT_TYPES.CASE_STUDY },
-        { type: CHROMA_DOCUMENT_TYPES.CASE_STUDY },
-        { type: CHROMA_DOCUMENT_TYPES.CASE_STUDY },
-        { type: CHROMA_DOCUMENT_TYPES.CASE_STUDY },
+        { type: CHROMA_DOCUMENT_TYPES.jobDescription },
+        { type: CHROMA_DOCUMENT_TYPES.jobDescription },
+        { type: CHROMA_DOCUMENT_TYPES.jobDescription },
+        { type: CHROMA_DOCUMENT_TYPES.jobDescription },
+        { type: CHROMA_DOCUMENT_TYPES.jobDescription },
+        { type: CHROMA_DOCUMENT_TYPES.caseStudy },
+        { type: CHROMA_DOCUMENT_TYPES.caseStudy },
+        { type: CHROMA_DOCUMENT_TYPES.caseStudy },
+        { type: CHROMA_DOCUMENT_TYPES.caseStudy },
+        { type: CHROMA_DOCUMENT_TYPES.caseStudy },
       ],
     };
 
     await collection.add(sampleData);
 
     this.logger.log(`Added ${sampleData.ids.length} sample documents`);
-    this.logger.log(`  - ${sampleData.metadatas.filter(m => m.type === CHROMA_DOCUMENT_TYPES.JOB_DESCRIPTION).length} job descriptions`);
-    this.logger.log(`  - ${sampleData.metadatas.filter(m => m.type === CHROMA_DOCUMENT_TYPES.CASE_STUDY).length} case study briefs`);
+    this.logger.log(`  - ${sampleData.metadatas.filter(m => m.type === CHROMA_DOCUMENT_TYPES.jobDescription).length} job descriptions`);
+    this.logger.log(`  - ${sampleData.metadatas.filter(m => m.type === CHROMA_DOCUMENT_TYPES.caseStudy).length} case study briefs`);
   }
 }
 

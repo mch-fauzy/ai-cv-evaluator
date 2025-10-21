@@ -16,7 +16,7 @@ import { OpenAIEmbeddingFunction } from '../utils/chromadb-openai-embedding.util
 @Injectable()
 export class ChromaDBService {
   private readonly client: CloudClient;
-  private readonly collectionName = CHROMA_COLLECTIONS.EVALUATION_CONTEXT;
+  private readonly collectionName = CHROMA_COLLECTIONS.evaluationContext;
   private readonly embeddingFunction: OpenAIEmbeddingFunction;
 
   constructor() {
@@ -49,9 +49,9 @@ export class ChromaDBService {
 
       const results = await collection.query({
         queryTexts: [params.jobTitle],
-        nResults: params.nResults || CHROMA_DEFAULTS.N_RESULTS,
+        nResults: params.nResults || CHROMA_DEFAULTS.nResults,
         where: {
-          type: CHROMA_DOCUMENT_TYPES.JOB_DESCRIPTION,
+          type: CHROMA_DOCUMENT_TYPES.jobDescription,
         },
       });
 
@@ -84,9 +84,9 @@ export class ChromaDBService {
 
       const results = await collection.query({
         queryTexts: [params.jobTitle],
-        nResults: params.nResults || CHROMA_DEFAULTS.N_RESULTS,
+        nResults: params.nResults || CHROMA_DEFAULTS.nResults,
         where: {
-          type: CHROMA_DOCUMENT_TYPES.CASE_STUDY,
+          type: CHROMA_DOCUMENT_TYPES.caseStudy,
         },
       });
 
@@ -157,7 +157,7 @@ export class ChromaDBService {
         documents: [params.content],
         metadatas: [
           {
-            type: CHROMA_DOCUMENT_TYPES.JOB_DESCRIPTION,
+            type: CHROMA_DOCUMENT_TYPES.jobDescription,
             title: params.title,
             ...params.metadata,
           },
@@ -190,7 +190,7 @@ export class ChromaDBService {
         documents: [params.content],
         metadatas: [
           {
-            type: CHROMA_DOCUMENT_TYPES.CASE_STUDY,
+            type: CHROMA_DOCUMENT_TYPES.caseStudy,
             title: params.title,
             ...params.metadata,
           },

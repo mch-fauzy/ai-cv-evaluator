@@ -11,7 +11,7 @@ import { CHROMA_COLLECTIONS } from '../../../../common/constants/chromadb.consta
 class ChromaDBReset {
   private readonly logger = new Logger(ChromaDBReset.name);
   private readonly client: CloudClient;
-  private readonly collectionName = CHROMA_COLLECTIONS.EVALUATION_CONTEXT;
+  private readonly collectionName = CHROMA_COLLECTIONS.evaluationContext;
 
   constructor() {
     this.client = new CloudClient({

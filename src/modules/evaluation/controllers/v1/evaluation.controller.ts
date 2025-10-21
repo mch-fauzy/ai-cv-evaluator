@@ -58,7 +58,7 @@ export class EvaluationController {
   ): Promise<ApiResult<EvaluationResponseDto>> {
     const response = await this.evaluationService.createEvaluation(data);
     return {
-      message: API_RESPONSE_MESSAGE.SUCCESS_CREATE_DATA('evaluation job'),
+      message: API_RESPONSE_MESSAGE.successCreateData('evaluation job'),
       data: response,
     };
   }
@@ -141,7 +141,7 @@ export class EvaluationController {
   ): Promise<ApiResult<Paginated<EvaluationListItemDto>>> {
     const data = await this.evaluationService.getList(query);
     return {
-      message: API_RESPONSE_MESSAGE.SUCCESS_GET_DATA('evaluations'),
+      message: API_RESPONSE_MESSAGE.successGetData('evaluations'),
       data,
     };
   }

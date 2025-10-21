@@ -23,7 +23,7 @@ describe('EvaluationQueueService', () => {
       providers: [
         EvaluationQueueService,
         {
-          provide: getQueueToken(QUEUE_NAMES.EVALUATION),
+          provide: getQueueToken(QUEUE_NAMES.evaluation),
           useValue: mockQueue,
         },
       ],
@@ -44,7 +44,12 @@ describe('EvaluationQueueService', () => {
 
   it('should add job to queue', async () => {
     const jobName = 'process-evaluation';
-    const jobData = { evaluationId: 'eval-123' };
+    const jobData = {
+      evaluationId: 'eval-123',
+      jobTitle: 'Software Engineer',
+      cvFileId: 'cv-file-123',
+      projectFileId: 'project-file-123',
+    };
 
     const jobId = await service.addJob(jobName, jobData);
 

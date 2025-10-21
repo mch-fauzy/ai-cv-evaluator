@@ -99,7 +99,7 @@ export class UploadController {
   ): Promise<ApiResult<UploadResponseDto>> {
     const data = await this.uploadService.uploadFiles(files);
     return {
-      message: API_RESPONSE_MESSAGE.SUCCESS_UPLOAD_DATA('files'),
+      message: API_RESPONSE_MESSAGE.successUploadData('files'),
       data,
     };
   }
@@ -162,7 +162,7 @@ export class UploadController {
   ): Promise<ApiResult<Paginated<UploadListItemDto>>> {
     const data = await this.uploadService.getList(query);
     return {
-      message: API_RESPONSE_MESSAGE.SUCCESS_GET_DATA('uploads'),
+      message: API_RESPONSE_MESSAGE.successGetData('uploads'),
       data,
     };
   }

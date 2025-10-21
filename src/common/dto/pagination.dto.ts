@@ -4,9 +4,9 @@ import { z } from 'zod';
 import { PAGINATION } from '../constants/pagination.constant';
 
 const {
-  DEFAULT_PAGE,
-  DEFAULT_LIMIT,
-  DEFAULT_UPPER_LIMIT,
+  defaultPage,
+  defaultLimit,
+  defaultUpperLimit,
 } = PAGINATION;
 
 /**
@@ -25,8 +25,8 @@ const preprocessPaginationSchema = (defaultValue: number, max?: number) => {
 };
 
 export const paginationSchema = z.object({
-  page: preprocessPaginationSchema(DEFAULT_PAGE),
-  limit: preprocessPaginationSchema(DEFAULT_LIMIT, DEFAULT_UPPER_LIMIT),
+  page: preprocessPaginationSchema(defaultPage),
+  limit: preprocessPaginationSchema(defaultLimit, defaultUpperLimit),
 });
 
 export class PaginationDto extends createZodDto(paginationSchema) {}
