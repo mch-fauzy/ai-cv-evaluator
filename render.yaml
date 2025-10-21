@@ -29,7 +29,7 @@ services:
       - key: POSTGRES_SYNCHRONIZE
         value: false
       - key: POSTGRES_SSL
-        value: false
+        value: true
       - key: POSTGRES_SSL_REJECT_UNAUTHORIZED
         value: false
       # Cloudinary - Add your actual values in Render Dashboard
