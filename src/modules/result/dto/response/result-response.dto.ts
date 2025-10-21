@@ -1,92 +1,59 @@
 import { z } from 'zod';
+
+import { EvaluationStatus } from '../../../../common/enums/evaluation-status.enum';
 import { evaluationResultSchema, EvaluationResultDto } from './evaluation-result.dto';
-import { jobStatusSchema } from '../../../evaluation/dto/response/evaluation-response.dto';
 
 /**
- * Zod schema for result response (pending)
+ * Unified Zod schema for result response
+ * All statuses return the same structure with result being null or data
  */
-export const resultResponsePendingSchema = z.object({
+export const resultResponseSchema = z.object({
   id: z.uuid(),
-  status: z.enum(['queued', 'processing']),
+  status: z.enum(EvaluationStatus),
+  result: evaluationResultSchema.nullable(),
 });
 
 /**
- * Zod schema for result response (completed)
+ * Unified Result response DTO
+ * Provides a consistent JSON schema across all evaluation statuses
  */
-export const resultResponseCompletedSchema = z.object({
-  id: z.uuid(),
-  status: z.literal('completed'),
-  result: evaluationResultSchema,
-});
-
-/**
- * Zod schema for result response (failed)
- */
-export const resultResponseFailedSchema = z.object({
-  id: z.uuid(),
-  status: z.literal('failed'),
-  error: z.string().optional(),
-});
-
-/**
- * Combined result response schema
- */
-export const resultResponseSchema = z.discriminatedUnion('status', [
-  resultResponsePendingSchema,
-  resultResponseCompletedSchema,
-  resultResponseFailedSchema,
-]);
-
-/**
- * Result response DTO (pending status)
- */
-export class ResultResponsePendingDto {
+export class ResultResponseDto {
   id!: string;
-  status!: 'queued' | 'processing';
+  status!: EvaluationStatus;
+  result!: EvaluationResultDto | null;
 
-  static from(id: string, status: 'queued' | 'processing'): ResultResponsePendingDto {
-    const dto = new ResultResponsePendingDto();
+  static fromPending(
+    id: string,
+    status: EvaluationStatus.PENDING | EvaluationStatus.IN_PROGRESS,
+  ): ResultResponseDto {
+    const dto = new ResultResponseDto();
     dto.id = id;
     dto.status = status;
+    dto.result = null;
     return dto;
   }
-}
 
-/**
- * Result response DTO (completed status)
- */
-export class ResultResponseCompletedDto {
-  id!: string;
-  status!: 'completed';
-  result!: EvaluationResultDto;
-
-  static from(id: string, result: EvaluationResultDto): ResultResponseCompletedDto {
-    const dto = new ResultResponseCompletedDto();
+  static fromCompleted(id: string, result: EvaluationResultDto): ResultResponseDto {
+    const dto = new ResultResponseDto();
     dto.id = id;
-    dto.status = 'completed';
+    dto.status = EvaluationStatus.COMPLETED;
     dto.result = result;
     return dto;
   }
-}
 
-/**
- * Result response DTO (failed status)
- */
-export class ResultResponseFailedDto {
-  id!: string;
-  status!: 'failed';
-  error?: string;
-
-  static from(id: string, error?: string): ResultResponseFailedDto {
-    const dto = new ResultResponseFailedDto();
+  static fromFailed(id: string): ResultResponseDto {
+    const dto = new ResultResponseDto();
     dto.id = id;
-    dto.status = 'failed';
-    dto.error = error;
+    dto.status = EvaluationStatus.FAILED;
+    dto.result = null;
     return dto;
   }
 }
 
+// Type aliases for backward compatibility and clarity
 export type ResultResponse = z.infer<typeof resultResponseSchema>;
-export type ResultResponsePending = z.infer<typeof resultResponsePendingSchema>;
-export type ResultResponseCompleted = z.infer<typeof resultResponseCompletedSchema>;
-export type ResultResponseFailed = z.infer<typeof resultResponseFailedSchema>;
+
+// Keep old class names as aliases for backward compatibility
+export const ResultResponsePendingDto = ResultResponseDto;
+export const ResultResponseCompletedDto = ResultResponseDto;
+export const ResultResponseFailedDto = ResultResponseDto;

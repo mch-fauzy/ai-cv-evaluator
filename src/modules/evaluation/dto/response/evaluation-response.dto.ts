@@ -1,35 +1,24 @@
 import { z } from 'zod';
 
-/**
- * Job status enum
- */
-export const jobStatusSchema = z.enum([
-  'queued',
-  'processing',
-  'completed',
-  'failed',
-]);
+import { EvaluationStatus } from '../../../../common/enums/evaluation-status.enum';
 
 /**
  * Zod schema for evaluation response
  */
 export const evaluationResponseSchema = z.object({
   id: z.uuid(),
-  status: jobStatusSchema,
+  status: z.enum(EvaluationStatus),
 });
 
 /**
  * Evaluation response DTO
- * Returns job ID and initial status
+ * Returns evaluation ID and current status
  */
 export class EvaluationResponseDto {
   id!: string;
-  status!: 'queued' | 'processing' | 'completed' | 'failed';
+  status!: EvaluationStatus;
 
-  static from(
-    id: string,
-    status: 'queued' | 'processing' | 'completed' | 'failed',
-  ): EvaluationResponseDto {
+  static from(id: string, status: EvaluationStatus): EvaluationResponseDto {
     const dto = new EvaluationResponseDto();
     dto.id = id;
     dto.status = status;
@@ -38,4 +27,3 @@ export class EvaluationResponseDto {
 }
 
 export type EvaluationResponse = z.infer<typeof evaluationResponseSchema>;
-export type JobStatus = z.infer<typeof jobStatusSchema>;

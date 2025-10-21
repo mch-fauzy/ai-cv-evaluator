@@ -1,10 +1,11 @@
-import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+
+import type { ApiResult } from '../../../../common/interfaces/api-response.interface';
+import { API_RESPONSE_MESSAGE } from '../../../../common/constants/api-response-message.constant';
 import { CreateEvaluationDto } from '../../dto/request/create-evaluation.dto';
 import type { EvaluationResponseDto } from '../../dto/response/evaluation-response.dto';
 import { EvaluationService } from '../../services/evaluation.service';
-import type { ApiResult } from '../../../../common/interfaces/api-response.interface';
-import { API_RESPONSE_MESSAGE } from '../../../../common/constants/api-response-message.constant';
 
 @ApiTags('evaluation')
 @Controller('evaluate')
@@ -12,10 +13,20 @@ export class EvaluationController {
   constructor(private readonly evaluationService: EvaluationService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create evaluation job (Not yet implemented - Stage 4)' })
-  @ApiResponse({ status: HttpStatus.CREATED, description: 'Evaluation job created' })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
-  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Not yet implemented' })
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Create evaluation job' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Evaluation job created successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Bad Request - Invalid data or files not found',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Internal Server Error',
+  })
   async createEvaluation(
     @Body() data: CreateEvaluationDto,
   ): Promise<ApiResult<EvaluationResponseDto>> {
