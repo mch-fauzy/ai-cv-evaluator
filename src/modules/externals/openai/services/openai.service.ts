@@ -134,7 +134,7 @@ export class OpenAIService {
           {
             role: 'system',
             content:
-              'You are an expert recruiter writing concise evaluation summaries. Focus on key strengths, gaps, and recommendations.',
+              'You are an expert recruiter writing concise evaluation summaries. You MUST write exactly 3-5 sentences covering: strengths, gaps, and recommendations. Be direct and impactful.',
           },
           {
             role: 'user',
@@ -256,12 +256,14 @@ CV Feedback: ${params.cvFeedback}
 Project Score: ${params.projectScore}/5
 Project Feedback: ${params.projectFeedback}
 
-Provide a 3-5 sentence summary covering:
-1. Key strengths that stand out
-2. Notable gaps or areas for improvement
-3. Overall recommendation (Strong Hire / Hire / Maybe / No Hire)
+IMPORTANT: Write EXACTLY 3-5 sentences. No more, no less.
 
-Keep it professional, balanced, and actionable.
+Your summary MUST include:
+1. Key strengths that stand out (1-2 sentences)
+2. Notable gaps or areas for improvement (1-2 sentences)
+3. Overall recommendation: Strong Hire / Hire / Maybe / No Hire (1 sentence)
+
+Keep it professional, balanced, and actionable. Do not exceed 5 sentences.
 `;
   }
 

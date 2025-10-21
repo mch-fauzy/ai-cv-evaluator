@@ -89,9 +89,11 @@ export class ChromaDBSetup {
     const sampleData = {
       ids: [
         'job-product-engineer-backend',
+        'job-backend-engineer-nestjs',
         'job-backend-senior',
         'job-fullstack-mid',
         'job-frontend-senior',
+        'case-autogate-sez-gresik',
         'case-ai-cv-evaluator',
         'case-ecommerce-api',
         'case-task-management',
@@ -136,6 +138,48 @@ Required Knowledge and Skills:
 Culture:
 Managers of One - autonomous and empowered team members who own outcomes. Remote role with flexibility to work from anywhere in Indonesia.`,
 
+        `Backend Engineer - NestJS & TypeScript Specialist
+
+About the Role:
+We're seeking a skilled Backend Engineer to develop and maintain scalable backend services for enterprise systems. You'll work on complex integrations, database management, and API development while collaborating with cross-functional teams.
+
+Key Responsibilities:
+- Develop and maintain scalable backend services and RESTful APIs
+- Design and implement database schemas, migrations, and data seeding
+- Integrate with third-party services and external APIs
+- Implement asynchronous job processing with queue systems
+- Build role-based access control and authentication systems
+- Optimize database queries and system performance
+- Write comprehensive API documentation
+- Collaborate with frontend engineers and stakeholders
+- Ensure code quality through testing and code reviews
+- Deploy and maintain services using Docker containerization
+
+Required Skills & Technologies:
+- Strong experience with Node.js and TypeScript
+- Proficiency in NestJS framework
+- Experience with TypeORM or Prisma ORM
+- PostgreSQL and database schema design
+- Redis for caching and queue management
+- BullMQ or similar job queue systems
+- Docker containerization
+- RESTful API design
+- Git version control
+- Experience with cloud storage solutions (MinIO, S3, Cloudinary)
+- Understanding of security best practices
+- Experience with monitoring tools (Sentry)
+
+Preferred Experience:
+- 1+ years of backend development experience
+- Experience with system integrations
+- Knowledge of SQL optimization
+- Understanding of microservices architecture
+- Agile/Scrum methodology
+- Experience with API testing tools (Postman, Apidog)
+
+Work Environment:
+Hybrid or Remote with flexible working arrangements. Collaborative team culture focused on continuous learning and knowledge sharing.`,
+
         `Senior Backend Developer
 Requirements:
 - 5+ years of professional backend development experience
@@ -176,6 +220,66 @@ Requirements:
 - Knowledge of build tools (Webpack, Vite)`,
 
         // Case Study Briefs
+        `Autogate SEZ Gresik - Integrated Load/Unload Management System
+Build a comprehensive backend system for Special Economic Zone operations:
+
+Project Overview:
+An integrated system for managing goods load/unload operations, access control, and workflow tracking at Java Integrated Industrial and Ports Estate (JIIPE), enabling efficient, secure, and compliant movement within the Special Economic Zone.
+
+Technical Requirements:
+- Node.js backend with NestJS framework and TypeScript
+- TypeORM for database management with PostgreSQL
+- Redis for caching and session management
+- BullMQ for asynchronous job processing and queue management
+- Docker containerization for deployment
+- RESTful API design with comprehensive documentation
+- Integration with external systems (Customs CEISA, PTOSM)
+
+Core Features to Implement:
+- User Management System with role-based access control
+- Role and Permission Management
+- Vehicle Access Control with QR ticket generation
+- Load/Unload Operation Management
+  - Tracking of goods movement
+  - Workflow status monitoring
+  - Operation history logging
+- Database Schema Design and Migrations
+  - Design normalized database schemas
+  - Implement migration scripts
+  - Create data seeding for initial setup
+- Third-party API Integrations
+  - Customs CEISA integration for customs validation
+  - PTOSM integration for port operations
+  - Error handling for external API failures
+- File Storage Integration
+  - MinIO for document storage
+  - File upload and retrieval APIs
+- Error Monitoring and Logging
+  - Sentry integration for error tracking
+  - Comprehensive logging system
+- API Testing and Documentation
+  - Apidog/Postman collection
+  - Swagger documentation
+- Collaboration Requirements
+  - Work with cross-functional teams
+  - Code reviews and quality assurance
+  - Feature delivery and issue resolution
+  - Project documentation for knowledge sharing
+
+Performance & Scalability:
+- High performance with fast response times
+- Scalable architecture for growing operations
+- Efficient database query optimization
+- Proper caching strategies with Redis
+- Queue-based processing for long-running tasks
+
+Security & Compliance:
+- Secure authentication and authorization
+- Data validation and sanitization
+- Customs compliance validation
+- Audit trail for all operations
+- Role-based data access control`,
+
         `AI-Powered CV Evaluator System
 Build an intelligent CV evaluation platform with AI integration:
 - PDF parsing for CV and project portfolio documents
@@ -245,6 +349,8 @@ Implement a performant social media feed with:
         { type: CHROMA_DOCUMENT_TYPES.JOB_DESCRIPTION },
         { type: CHROMA_DOCUMENT_TYPES.JOB_DESCRIPTION },
         { type: CHROMA_DOCUMENT_TYPES.JOB_DESCRIPTION },
+        { type: CHROMA_DOCUMENT_TYPES.JOB_DESCRIPTION },
+        { type: CHROMA_DOCUMENT_TYPES.CASE_STUDY },
         { type: CHROMA_DOCUMENT_TYPES.CASE_STUDY },
         { type: CHROMA_DOCUMENT_TYPES.CASE_STUDY },
         { type: CHROMA_DOCUMENT_TYPES.CASE_STUDY },
