@@ -1,0 +1,68 @@
+services:
+  # Main API Service
+  - type: web
+    name: ai-cv-evaluator
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start:prod
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SERVER_PORT
+        value: 3000
+      - key: TIMEZONE
+        value: UTC
+      # Database - Add your actual values in Render Dashboard
+      - key: POSTGRES_HOST
+        sync: false
+      - key: POSTGRES_PORT
+        sync: false
+      - key: POSTGRES_DATABASE
+        sync: false
+      - key: POSTGRES_USERNAME
+        sync: false
+      - key: POSTGRES_PASSWORD
+        sync: false
+      - key: POSTGRES_SYNCHRONIZE
+        value: false
+      - key: POSTGRES_SSL
+        value: false
+      - key: POSTGRES_SSL_REJECT_UNAUTHORIZED
+        value: false
+      # Cloudinary - Add your actual values in Render Dashboard
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: CLOUDINARY_FILE_STORAGE_DIRECTORY
+        sync: false
+      # OpenAI - Add your actual values in Render Dashboard
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: OPENAI_EMBEDDING_MODEL
+        value: text-embedding-3-small
+      - key: OPENAI_TEMPERATURE
+        value: 0.3
+      - key: OPENAI_MAX_TOKENS
+        value: 1500
+      - key: OPENAI_SUMMARY_TEMPERATURE
+        value: 0.5
+      - key: OPENAI_SUMMARY_MAX_TOKENS
+        value: 500
+      # ChromaDB - Add your actual values in Render Dashboard
+      - key: CHROMADB_API_KEY
+        sync: false
+      - key: CHROMADB_TENANT
+        sync: false
+      - key: CHROMADB_DATABASE
+        sync: false
+      # Redis - Add your actual values in Render Dashboard
+      - key: REDIS_URL
+        sync: false
