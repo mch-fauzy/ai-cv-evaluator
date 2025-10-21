@@ -2,7 +2,7 @@
 
 A modern AI-powered API service for evaluating CVs and project reports against job requirements using RAG (Retrieval-Augmented Generation) and OpenAI GPT models.
 
-🚀 **[Try the Live Demo](https://ai-cv-evaluator-six.vercel.app/api/docs)** | 📖 **[API Documentation](https://ai-cv-evaluator-six.vercel.app/api/docs)**
+🚀 **[Try the Live Demo](https://ai-cv-evaluator-six.vercel.app)** | 📖 **[API Documentation](https://ai-cv-evaluator-six.vercel.app)**
 
 ## Table of Contents
 
@@ -143,7 +143,7 @@ The API will be available at:
 
 **Interactive Swagger Documentation is Available Online:**
 
-> 📖 **Access the API docs at:** [https://ai-cv-evaluator-six.vercel.app/api/docs](https://ai-cv-evaluator-six.vercel.app/api/docs)
+> 📖 **Access the API docs at:** [https://ai-cv-evaluator-six.vercel.app](https://ai-cv-evaluator-six.vercel.app)
 
 ### Local Development
 
