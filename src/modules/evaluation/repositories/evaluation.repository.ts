@@ -45,6 +45,20 @@ export class EvaluationRepository {
     });
   }
 
+  async updateStatus(
+    id: string,
+    status: EvaluationStatus,
+  ): Promise<void> {
+    await this.evaluationRepo.update(id, { status });
+  }
+
+  async markFailed(id: string, errorMessage: string): Promise<void> {
+    await this.evaluationRepo.update(id, {
+      status: EvaluationStatus.FAILED,
+      // TODO: Add error message
+    });
+  }
+
   async updateById(
     id: string,
     data: Partial<Pick<Evaluation, 'status'>>,

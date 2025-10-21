@@ -18,6 +18,19 @@ export class ResultRepository {
     return await this.resultRepo.save(result);
   }
 
+  async createResult(data: {
+    evaluationId: string;
+    cvMatchRate: number;
+    cvFeedback: string;
+    projectScore: number;
+    projectFeedback: string;
+    summary: string;
+    recommendation: string;
+  }): Promise<Result> {
+    const result = this.resultRepo.create(data);
+    return await this.resultRepo.save(result);
+  }
+
   async findByEvaluationId(evaluationId: string): Promise<Result | null> {
     return await this.resultRepo.findOne({
       where: { evaluationId },
