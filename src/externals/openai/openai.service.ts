@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import OpenAI from 'openai';
 
 import { openaiConfig } from '../../config';
@@ -55,7 +55,7 @@ export class OpenAIService {
 
       const response = completion.choices[0]?.message?.content;
       if (!response) {
-        throw new Error('Empty response from OpenAI');
+        throw new BadRequestException('Empty response from OpenAI');
       }
 
       return this.parseCVEvaluationResponse(response);
@@ -167,23 +167,29 @@ export class OpenAIService {
     jobContext: string,
   ): string {
     return `
-Evaluate the following CV for the position: ${jobTitle}
+You are evaluating a candidate for the position: ${jobTitle}
 
-Job Context:
+=== REFERENCE: Job Requirements (Use this as criteria ONLY, NOT as candidate information) ===
 ${jobContext}
 
-Candidate CV:
+=== CANDIDATE'S ACTUAL CV (Evaluate ONLY the content below) ===
 ${cvText}
 
-Please evaluate the CV based on these criteria:
-1. Technical Skills (40%): Rate 1-5 how well skills match the job requirements
-2. Experience (25%): Rate 1-5 the relevance and depth of experience
-3. Achievements (20%): Rate 1-5 the quality and relevance of accomplishments
-4. Culture Fit (15%): Rate 1-5 based on communication style and career trajectory
+=== IMPORTANT INSTRUCTIONS ===
+- Evaluate ONLY what is present in the candidate's CV section above
+- DO NOT assume the candidate has any skills from the job requirements unless explicitly stated in their CV
+- If the CV is incomplete or contains insufficient information, state this clearly
+- DO NOT confuse the job requirements with the candidate's actual qualifications
+
+Evaluation Criteria:
+1. Technical Skills (40%): Rate 1-5 how well the candidate's stated skills match the job requirements
+2. Experience (25%): Rate 1-5 the relevance and depth of experience shown in the CV
+3. Achievements (20%): Rate 1-5 the quality and relevance of accomplishments in the CV
+4. Culture Fit (15%): Rate 1-5 based on communication style and career trajectory in the CV
 
 Provide your evaluation in this exact format:
 MATCH_RATE: [weighted average as decimal 0-1, e.g., 0.75]
-FEEDBACK: [3-5 sentences covering strengths, gaps, and overall fit]
+FEEDBACK: [3-5 sentences covering strengths, gaps, and overall fit based ONLY on the actual CV content]
 
 Example format:
 MATCH_RATE: 0.82
@@ -200,24 +206,30 @@ FEEDBACK: Strong technical background with 5+ years in backend development. Exce
     caseStudyContext: string,
   ): string {
     return `
-Evaluate the following project submission for the position: ${jobTitle}
+You are evaluating a project submission for the position: ${jobTitle}
 
-Case Study Brief:
+=== REFERENCE: Case Study Requirements (Use this as criteria ONLY) ===
 ${caseStudyContext}
 
-Project Submission:
+=== CANDIDATE'S ACTUAL PROJECT SUBMISSION (Evaluate ONLY the content below) ===
 ${projectText}
 
-Please score the project based on these criteria:
-1. Correctness/Chaining/RAG (30%): How well does it solve the problem?
-2. Code Quality (25%): Clean code, best practices, architecture
-3. Resilience & Error Handling (20%): Edge cases, error handling, validation
-4. Documentation (15%): README, code comments, API docs
-5. Creativity (10%): Novel approaches, extra features, polish
+=== IMPORTANT INSTRUCTIONS ===
+- Evaluate ONLY what is present in the candidate's project submission above
+- DO NOT assume features exist unless explicitly described in the submission
+- If the submission is incomplete or contains insufficient information, state this clearly
+- DO NOT confuse the case study requirements with what was actually implemented
+
+Scoring Criteria:
+1. Correctness/Chaining/RAG (30%): How well does the actual submission solve the problem?
+2. Code Quality (25%): Clean code, best practices, architecture shown in submission
+3. Resilience & Error Handling (20%): Edge cases, error handling, validation in submission
+4. Documentation (15%): README, code comments, API docs present in submission
+5. Creativity (10%): Novel approaches, extra features, polish shown in submission
 
 Provide your evaluation in this exact format:
 SCORE: [overall score 1-5 as decimal, e.g., 4.2]
-FEEDBACK: [3-5 sentences covering implementation quality, strengths, and areas for improvement]
+FEEDBACK: [3-5 sentences covering implementation quality, strengths, and areas for improvement based ONLY on actual submission]
 
 Example format:
 SCORE: 4.3

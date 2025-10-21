@@ -1,5 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CloudClient } from 'chromadb';
+import { DefaultEmbeddingFunction } from '@chroma-core/default-embed';
 
 import {
   CHROMA_COLLECTIONS,
@@ -16,6 +17,7 @@ import { chromadbConfig } from '../../config';
 export class ChromaDBService {
   private readonly client: CloudClient;
   private readonly collectionName = CHROMA_COLLECTIONS.EVALUATION_CONTEXT;
+  private readonly embeddingFunction = new DefaultEmbeddingFunction();
 
   constructor() {
     this.client = new CloudClient({
@@ -36,6 +38,7 @@ export class ChromaDBService {
     try {
       const collection = await this.client.getCollection({
         name: this.collectionName,
+        embeddingFunction: this.embeddingFunction,
       });
 
       const results = await collection.query({
@@ -70,6 +73,7 @@ export class ChromaDBService {
     try {
       const collection = await this.client.getCollection({
         name: this.collectionName,
+        embeddingFunction: this.embeddingFunction,
       });
 
       const results = await collection.query({

@@ -5,6 +5,7 @@ import { UploadRepository } from '../../../upload/repositories/upload.repository
 import { CreateEvaluationDto } from '../../dto/request/create-evaluation.dto';
 import { EvaluationRepository } from '../../repositories/evaluation.repository';
 import { EvaluationService } from '../../services/evaluation.service';
+import { EvaluationQueueService } from '../../services/evaluation-queue.service';
 import { EvaluationController } from './evaluation.controller';
 
 describe('EvaluationController', () => {
@@ -26,6 +27,12 @@ describe('EvaluationController', () => {
     findByIds: jest.fn(),
   };
 
+  const mockQueueService = {
+    addJob: jest.fn().mockResolvedValue('job-123'),
+    getJob: jest.fn(),
+    getQueueStats: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [EvaluationController],
@@ -38,6 +45,10 @@ describe('EvaluationController', () => {
         {
           provide: UploadRepository,
           useValue: mockUploadRepository,
+        },
+        {
+          provide: EvaluationQueueService,
+          useValue: mockQueueService,
         },
       ],
     }).compile();

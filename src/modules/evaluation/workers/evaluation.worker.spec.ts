@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Logger } from '@nestjs/common';
+import { DataSource } from 'typeorm';
 
 import { EvaluationWorker } from './evaluation.worker';
 import { EvaluationRepository } from '../repositories/evaluation.repository';
@@ -10,6 +11,7 @@ import { ChromaDBService } from '../../../externals/chromadb/chromadb.service';
 
 describe('EvaluationWorker', () => {
   let worker: EvaluationWorker;
+  let dataSource: jest.Mocked<DataSource>;
   let evaluationRepository: jest.Mocked<EvaluationRepository>;
   let resultRepository: jest.Mocked<ResultRepository>;
   let uploadRepository: jest.Mocked<UploadRepository>;
@@ -21,10 +23,28 @@ describe('EvaluationWorker', () => {
       providers: [
         EvaluationWorker,
         {
+          provide: DataSource,
+          useValue: {
+            createQueryRunner: jest.fn().mockReturnValue({
+              connect: jest.fn(),
+              startTransaction: jest.fn(),
+              commitTransaction: jest.fn(),
+              rollbackTransaction: jest.fn(),
+              release: jest.fn(),
+              manager: {
+                create: jest.fn(),
+                save: jest.fn(),
+                update: jest.fn(),
+              },
+            }),
+          },
+        },
+        {
           provide: EvaluationRepository,
           useValue: {
             findById: jest.fn(),
             updateStatus: jest.fn(),
+            updateStatusWithTransaction: jest.fn(),
             markFailed: jest.fn(),
           },
         },
@@ -32,6 +52,7 @@ describe('EvaluationWorker', () => {
           provide: ResultRepository,
           useValue: {
             createResult: jest.fn(),
+            createResultWithTransaction: jest.fn(),
           },
         },
         {
@@ -58,6 +79,7 @@ describe('EvaluationWorker', () => {
     }).compile();
 
     worker = module.get<EvaluationWorker>(EvaluationWorker);
+    dataSource = module.get(DataSource);
     evaluationRepository = module.get(EvaluationRepository);
     resultRepository = module.get(ResultRepository);
     uploadRepository = module.get(UploadRepository);

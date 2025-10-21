@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, QueryRunner } from 'typeorm';
 
 import { EvaluationStatus } from '../../../common/enums/evaluation-status.enum';
 import { Evaluation } from '../entities/evaluation.entity';
@@ -52,18 +52,22 @@ export class EvaluationRepository {
     await this.evaluationRepo.update(id, { status });
   }
 
-  async markFailed(id: string, errorMessage: string): Promise<void> {
-    await this.evaluationRepo.update(id, {
-      status: EvaluationStatus.FAILED,
-      // TODO: Add error message
-    });
-  }
-
   async updateById(
     id: string,
     data: Partial<Pick<Evaluation, 'status'>>,
   ): Promise<void> {
     const evaluation = await this.findOrFailById(id);
     await this.evaluationRepo.save(Object.assign(evaluation, data));
+  }
+
+  /**
+   * Update evaluation status within a transaction
+   */
+  async updateStatusWithTransaction(
+    queryRunner: QueryRunner,
+    id: string,
+    status: EvaluationStatus,
+  ): Promise<void> {
+    await queryRunner.manager.update(Evaluation, id, { status });
   }
 }

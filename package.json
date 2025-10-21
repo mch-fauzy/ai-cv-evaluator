@@ -24,12 +24,14 @@
     "migrate:run": "npm run typeorm migration:run",
     "migrate:revert": "npm run typeorm migration:revert",
     "schema:reset": "npm run typeorm schema:drop && npm run typeorm migration:run",
-    "schema:drop": "npm run typeorm schema:drop"
+    "schema:drop": "npm run typeorm schema:drop",
+    "chromadb:setup": "ts-node -r tsconfig-paths/register src/externals/chromadb/scripts/setup-chromadb.script.ts"
   },
   "engines": {
     "node": ">=22.14.0"
   },
   "dependencies": {
+    "@chroma-core/default-embed": "^0.1.8",
     "@nestjs/bull": "^11.0.4",
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",

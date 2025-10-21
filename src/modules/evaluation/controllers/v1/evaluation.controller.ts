@@ -18,6 +18,30 @@ export class EvaluationController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Evaluation job created successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        message: {
+          type: 'string',
+          example: 'Successfully created evaluation job',
+        },
+        data: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+              format: 'uuid',
+              example: '550e8400-e29b-41d4-a716-446655440000',
+            },
+            status: {
+              type: 'string',
+              enum: ['pending', 'in_progress', 'completed', 'failed'],
+              example: 'pending',
+            },
+          },
+        },
+      },
+    },
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,

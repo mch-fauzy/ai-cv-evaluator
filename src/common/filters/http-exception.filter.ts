@@ -8,21 +8,10 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 
-/**
- * RFC7807 Problem Details interface
- */
-interface ProblemDetails {
-  type: string;
-  title: string;
-  status: number;
-  detail: string;
-  instance?: string;
-  errors?: unknown;
-}
+import type { ErrorResponse } from '../interfaces/error-response.interface';
 
 /**
- * Global exception filter that returns RFC7807 ProblemDetails format
- * Provides consistent error responses across the entire API
+ * Global exception filter that returns simple, consistent error responses
  */
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -34,12 +23,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let problemDetails: ProblemDetails = {
-      type: 'https://tools.ietf.org/html/rfc7807',
-      title: 'Internal Server Error',
-      status,
-      detail: 'An unexpected error occurred',
-      instance: request.url,
+    let errorResponse: ErrorResponse = {
+      message: 'Internal Server Error',
+      error: 'An unexpected error occurred',
     };
 
     if (exception instanceof HttpException) {
@@ -49,59 +35,48 @@ export class HttpExceptionFilter implements ExceptionFilter {
       if (typeof exceptionResponse === 'object' && exceptionResponse !== null) {
         const responseObj = exceptionResponse as Record<string, unknown>;
         
-        // If already ProblemDetails format, use it
-        if ('type' in responseObj && 'title' in responseObj) {
-          problemDetails = {
-            ...problemDetails,
-            ...responseObj,
-            status,
-            instance: request.url,
-          } as ProblemDetails;
+        // Handle validation errors (array of messages)
+        if (Array.isArray(responseObj.message)) {
+          errorResponse = {
+            message: this.getHttpStatusTitle(status),
+            errors: this.formatValidationErrors(responseObj.message as string[]),
+          };
         } else {
-          // Convert standard NestJS error to ProblemDetails
-          problemDetails = {
-            type: 'https://tools.ietf.org/html/rfc7807',
-            title: this.getHttpStatusTitle(status),
-            status,
-            detail: (responseObj.message as string) || exception.message,
-            instance: request.url,
-            errors: responseObj.error,
+          errorResponse = {
+            message: this.getHttpStatusTitle(status),
+            error: (responseObj.message as string) || exception.message,
           };
         }
       } else {
-        problemDetails = {
-          type: 'https://tools.ietf.org/html/rfc7807',
-          title: this.getHttpStatusTitle(status),
-          status,
-          detail: exception.message,
-          instance: request.url,
+        errorResponse = {
+          message: this.getHttpStatusTitle(status),
+          error: exception.message,
         };
       }
     } else if (exception instanceof Error) {
-      // Handle non-HTTP errors
+      // Handle non-HTTP errors (500 errors)
       this.logger.error(
         `Unexpected error: ${exception.message}`,
         exception.stack,
       );
-      problemDetails = {
-        type: 'https://tools.ietf.org/html/rfc7807',
-        title: 'Internal Server Error',
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
-        detail:
+      errorResponse = {
+        message: 'Internal Server Error',
+        error:
           process.env.NODE_ENV === 'production'
             ? 'An unexpected error occurred'
             : exception.message,
-        instance: request.url,
       };
     }
 
-    // Log the error
-    this.logger.error(
-      `${request.method} ${request.url} - Status: ${status}`,
-      exception instanceof Error ? exception.stack : exception,
-    );
+    // Only log server errors (5xx), not client errors (4xx)
+    if (status >= 500) {
+      this.logger.error(
+        `${request.method} ${request.url} - Status: ${status}`,
+        exception instanceof Error ? exception.stack : exception,
+      );
+    }
 
-    response.status(status).json(problemDetails);
+    response.status(status).json(errorResponse);
   }
 
   /**
@@ -121,5 +96,34 @@ export class HttpExceptionFilter implements ExceptionFilter {
     };
 
     return titles[status] || 'Error';
+  }
+
+  /**
+   * Format validation errors into a structured object
+   * Converts ["field1 should be...", "field2 should be..."] 
+   * to { field1: ["should be..."], field2: ["should be..."] }
+   */
+  private formatValidationErrors(messages: string[]): Record<string, string[]> {
+    const errors: Record<string, string[]> = {};
+    
+    messages.forEach((msg) => {
+      // Try to extract field name from message like "fieldName should be..."
+      const match = msg.match(/^(\w+)\s+(.+)$/);
+      if (match) {
+        const [, field, error] = match;
+        if (!errors[field]) {
+          errors[field] = [];
+        }
+        errors[field].push(error);
+      } else {
+        // If no field found, use 'general' key
+        if (!errors.general) {
+          errors.general = [];
+        }
+        errors.general.push(msg);
+      }
+    });
+
+    return errors;
   }
 }

@@ -1,8 +1,9 @@
-import { Logger } from '@nestjs/common';
+import { Logger, NotFoundException } from '@nestjs/common';
 import { Process, Processor } from '@nestjs/bull';
 import type { Job } from 'bull';
-import {PDFParse} from 'pdf-parse';
+import { PDFParse } from 'pdf-parse';
 import axios from 'axios';
+import { DataSource } from 'typeorm';
 
 import { EvaluationJobData } from '../interfaces/evaluation-job-data.interface';
 import { EvaluationRepository } from '../repositories/evaluation.repository';
@@ -12,6 +13,7 @@ import { OpenAIService } from '../../../externals/openai/openai.service';
 import { ChromaDBService } from '../../../externals/chromadb/chromadb.service';
 import { EvaluationStatus } from '../../../common/enums/evaluation-status.enum';
 import { QUEUE_NAMES, JOB_NAMES } from '../../../common/constants/queue.constant';
+import { TransactionUtil } from '../../../utils/transaction.util';
 
 /**
  * Worker processor for CV evaluation jobs.
@@ -29,6 +31,7 @@ export class EvaluationWorker {
   private readonly logger = new Logger(EvaluationWorker.name);
 
   constructor(
+    private readonly dataSource: DataSource,
     private readonly evaluationRepository: EvaluationRepository,
     private readonly resultRepository: ResultRepository,
     private readonly uploadRepository: UploadRepository,
@@ -49,7 +52,7 @@ export class EvaluationWorker {
     );
 
     try {
-      // Step 1: Fetch evaluation record and update status
+      // Fetch evaluation record and update status
       const evaluation = await this.evaluationRepository.findById(evaluationId);
       if (!evaluation) {
         throw new Error(`Evaluation ${evaluationId} not found`);
@@ -61,45 +64,52 @@ export class EvaluationWorker {
       );
       this.logger.log(`Evaluation ${evaluationId} status updated to IN_PROGRESS`);
 
-      // Step 2: Download and extract text from CV
-      const cvText = await this.downloadAndExtractPDF(cvFileId, 'CV');
-      this.logger.log(`CV text extracted (${cvText.length} characters)`);
+      // Download and extract text from both PDFs + ChromaDB context
+      const [cvText, projectText, chromaResults] = await Promise.all([
+        this.downloadAndExtractPDF(cvFileId, 'CV'),
+        this.downloadAndExtractPDF(projectFileId, 'Project'),
+        this.chromadbService
+          .searchEvaluationContext({ jobTitle })
+          .catch((error) => {
+            this.logger.warn(
+              `ChromaDB search failed, continuing without RAG context: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            );
+            return { jobContext: '', caseStudyContext: '' };
+          }),
+      ]);
 
-      // Step 3: Download and extract text from project
-      const projectText = await this.downloadAndExtractPDF(
-        projectFileId,
-        'Project',
-      );
+      this.logger.log(`CV text extracted (${cvText.length} characters)`);
       this.logger.log(
         `Project text extracted (${projectText.length} characters)`,
       );
+      if (chromaResults.jobContext || chromaResults.caseStudyContext) {
+        this.logger.log('Retrieved context from ChromaDB');
+      }
 
-      // Step 4: Query ChromaDB for contextual information (RAG)
-      const { jobContext, caseStudyContext } =
-        await this.chromadbService.searchEvaluationContext({ jobTitle });
-      this.logger.log('Retrieved context from ChromaDB');
+      const { jobContext, caseStudyContext } = chromaResults;
 
-      // Step 5: Evaluate CV using OpenAI
-      const cvEvaluation = await this.openaiService.evaluateCV({
-        cvText,
-        jobTitle,
-        jobContext,
-      });
+      // Evaluate CV and score project simultaneously
+      const [cvEvaluation, projectEvaluation] = await Promise.all([
+        this.openaiService.evaluateCV({
+          cvText,
+          jobTitle,
+          jobContext,
+        }),
+        this.openaiService.scoreProject({
+          projectText,
+          jobTitle,
+          caseStudyContext,
+        }),
+      ]);
+
       this.logger.log(
         `CV evaluated: match rate = ${cvEvaluation.matchRate.toFixed(2)}`,
       );
-
-      // Step 6: Score project using OpenAI
-      const projectEvaluation = await this.openaiService.scoreProject({
-        projectText,
-        jobTitle,
-        caseStudyContext,
-      });
       this.logger.log(
         `Project scored: score = ${projectEvaluation.score.toFixed(2)}`,
       );
 
-      // Step 7: Generate overall summary
+      // Generate overall summary
       const summary = await this.openaiService.generateSummary({
         cvMatchRate: cvEvaluation.matchRate,
         cvFeedback: cvEvaluation.feedback,
@@ -109,23 +119,26 @@ export class EvaluationWorker {
       });
       this.logger.log('Generated evaluation summary');
 
-      // Step 8: Save results to database
-      await this.resultRepository.createResult({
-        evaluationId,
-        cvMatchRate: cvEvaluation.matchRate,
-        cvFeedback: cvEvaluation.feedback,
-        projectScore: projectEvaluation.score,
-        projectFeedback: projectEvaluation.feedback,
-        summary,
-        recommendation: summary, // Same as summary for now
-      });
-      this.logger.log('Results saved to database');
+      // Save results and update status in a transaction
+      await TransactionUtil.execute(this.dataSource, async (queryRunner) => {
+        // Save results to database
+        await this.resultRepository.createResultWithTransaction(queryRunner, {
+          evaluationId,
+          cvMatchRate: cvEvaluation.matchRate,
+          cvFeedback: cvEvaluation.feedback,
+          projectScore: projectEvaluation.score,
+          projectFeedback: projectEvaluation.feedback,
+          summary,
+        });
 
-      // Step 9: Update evaluation status to COMPLETED
-      await this.evaluationRepository.updateStatus(
-        evaluationId,
-        EvaluationStatus.COMPLETED,
-      );
+        // Update evaluation status to COMPLETED
+        await this.evaluationRepository.updateStatusWithTransaction(
+          queryRunner,
+          evaluationId,
+          EvaluationStatus.COMPLETED,
+        );
+      });
+
       this.logger.log(`Evaluation ${evaluationId} completed successfully`);
     } catch (error) {
       // Handle errors and update status to FAILED
@@ -134,12 +147,13 @@ export class EvaluationWorker {
         error instanceof Error ? error.message : String(error),
       );
 
-      await this.evaluationRepository.markFailed(
+      // Update evaluation status to FAILED
+      await this.evaluationRepository.updateStatus(
         evaluationId,
-        error instanceof Error ? error.message : 'Unknown error occurred',
+        EvaluationStatus.FAILED
       );
 
-      throw error; // Re-throw for Bull retry mechanism
+      throw error;
     }
   }
 
@@ -154,7 +168,7 @@ export class EvaluationWorker {
       // Fetch upload record
       const upload = await this.uploadRepository.findById(fileId);
       if (!upload) {
-        throw new Error(`${fileType} file ${fileId} not found in database`);
+        throw new NotFoundException(`${fileType} file ${fileId} not found in database`);
       }
 
       // Download file from Cloudinary
@@ -170,9 +184,10 @@ export class EvaluationWorker {
 
       // Parse PDF and extract text
       const buffer = Buffer.from(response.data);
-      const parser = new PDFParse(buffer);
-      const textResult = await parser.getText();
-      const text = textResult.text;
+      const uint8Array = new Uint8Array(buffer);
+      const parser = new PDFParse(uint8Array);
+      const result = await parser.getText();
+      const text = result.text;
 
       if (!text || text.trim().length === 0) {
         throw new Error(`${fileType} PDF contains no extractable text`);

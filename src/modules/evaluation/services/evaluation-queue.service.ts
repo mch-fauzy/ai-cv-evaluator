@@ -25,10 +25,7 @@ export class EvaluationQueueService {
   /**
    * Add job to evaluation queue
    */
-  async addJob(
-    jobName: string,
-    data: Record<string, unknown>,
-  ): Promise<string> {
+  async addJob(jobName: string, data: unknown): Promise<string> {
     const job = await this.queue.add(jobName, data);
     return job.id.toString();
   }

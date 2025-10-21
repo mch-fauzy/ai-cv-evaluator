@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, QueryRunner } from 'typeorm';
 
 import { Result } from '../entities/result.entity';
 
@@ -25,9 +25,15 @@ export class ResultRepository {
     projectScore: number;
     projectFeedback: string;
     summary: string;
-    recommendation: string;
   }): Promise<Result> {
-    const result = this.resultRepo.create(data);
+    const result = this.resultRepo.create({
+      evaluationId: data.evaluationId,
+      cvMatchRate: data.cvMatchRate,
+      cvFeedback: data.cvFeedback,
+      projectScore: data.projectScore,
+      projectFeedback: data.projectFeedback,
+      overallSummary: data.summary,
+    });
     return await this.resultRepo.save(result);
   }
 
@@ -47,5 +53,30 @@ export class ResultRepository {
       throw new NotFoundException(`Result for evaluation ${evaluationId} not found`);
     }
     return result;
+  }
+
+  /**
+   * Create result within a transaction
+   */
+  async createResultWithTransaction(
+    queryRunner: QueryRunner,
+    data: {
+      evaluationId: string;
+      cvMatchRate: number;
+      cvFeedback: string;
+      projectScore: number;
+      projectFeedback: string;
+      summary: string;
+    },
+  ): Promise<Result> {
+    const result = queryRunner.manager.create(Result, {
+      evaluationId: data.evaluationId,
+      cvMatchRate: data.cvMatchRate,
+      cvFeedback: data.cvFeedback,
+      projectScore: data.projectScore,
+      projectFeedback: data.projectFeedback,
+      overallSummary: data.summary,
+    });
+    return await queryRunner.manager.save(result);
   }
 }
