@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { DataSource } from 'typeorm';
 
 import { EvaluationStatus } from '../../../../common/enums/evaluation-status.enum';
 import { UploadRepository } from '../../../upload/repositories/upload.repository';
@@ -12,8 +13,23 @@ describe('EvaluationController', () => {
   let controller: EvaluationController;
   let service: EvaluationService;
 
+  const mockDataSource = {
+    createQueryRunner: jest.fn().mockReturnValue({
+      connect: jest.fn(),
+      startTransaction: jest.fn(),
+      commitTransaction: jest.fn(),
+      rollbackTransaction: jest.fn(),
+      release: jest.fn(),
+      manager: {
+        create: jest.fn(),
+        save: jest.fn(),
+      },
+    }),
+  };
+
   const mockEvaluationRepository = {
     create: jest.fn(),
+    createWithTransaction: jest.fn(),
     findById: jest.fn(),
     findOrFailById: jest.fn(),
     findPendingJobs: jest.fn(),
@@ -38,6 +54,10 @@ describe('EvaluationController', () => {
       controllers: [EvaluationController],
       providers: [
         EvaluationService,
+        {
+          provide: DataSource,
+          useValue: mockDataSource,
+        },
         {
           provide: EvaluationRepository,
           useValue: mockEvaluationRepository,
@@ -77,8 +97,8 @@ describe('EvaluationController', () => {
         { id: dto.projectFileId },
       ]);
 
-      // Mock evaluation creation
-      mockEvaluationRepository.create.mockResolvedValue({
+      // Mock evaluation creation with transaction
+      mockEvaluationRepository.createWithTransaction.mockResolvedValue({
         id: mockEvaluationId,
         jobTitle: dto.jobTitle,
         cvFileId: dto.cvFileId,
@@ -100,12 +120,16 @@ describe('EvaluationController', () => {
         dto.cvFileId,
         dto.projectFileId,
       ]);
-      expect(mockEvaluationRepository.create).toHaveBeenCalledWith({
-        jobTitle: dto.jobTitle,
-        cvFileId: dto.cvFileId,
-        projectFileId: dto.projectFileId,
-        status: EvaluationStatus.PENDING,
-      });
+      expect(mockEvaluationRepository.createWithTransaction).toHaveBeenCalledWith(
+        expect.anything(), // QueryRunner
+        {
+          jobTitle: dto.jobTitle,
+          cvFileId: dto.cvFileId,
+          projectFileId: dto.projectFileId,
+          status: EvaluationStatus.PENDING,
+        },
+      );
+      expect(mockQueueService.addJob).toHaveBeenCalled();
     });
   });
 });

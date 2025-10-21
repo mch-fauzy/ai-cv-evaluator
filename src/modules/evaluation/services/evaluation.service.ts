@@ -1,8 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { DataSource } from 'typeorm';
 
 import { EvaluationStatus } from '../../../common/enums/evaluation-status.enum';
 import { JOB_NAMES } from '../../../common/constants/queue.constant';
 import { UploadRepository } from '../../upload/repositories/upload.repository';
+import { TransactionUtil } from '../../../utils/transaction.util';
 import type { CreateEvaluation } from '../dto/request/create-evaluation.dto';
 import { EvaluationResponseDto } from '../dto/response/evaluation-response.dto';
 import { EvaluationRepository } from '../repositories/evaluation.repository';
@@ -12,6 +14,7 @@ import type { EvaluationJobData } from '../interfaces/evaluation-job-data.interf
 @Injectable()
 export class EvaluationService {
   constructor(
+    private readonly dataSource: DataSource,
     private readonly evaluationRepository: EvaluationRepository,
     private readonly uploadRepository: UploadRepository,
     private readonly queueService: EvaluationQueueService,
@@ -39,23 +42,34 @@ export class EvaluationService {
       );
     }
 
-    // Create evaluation job with PENDING status
-    const evaluation = await this.evaluationRepository.create({
-      jobTitle: data.jobTitle,
-      cvFileId: data.cvFileId,
-      projectFileId: data.projectFileId,
-      status: EvaluationStatus.PENDING,
-    });
+    // Create evaluation and enqueue job in a transaction
+    const evaluation = await TransactionUtil.execute(
+      this.dataSource,
+      async (queryRunner) => {
+        // Create evaluation job with PENDING status
+        const newEvaluation = await this.evaluationRepository.createWithTransaction(
+          queryRunner,
+          {
+            jobTitle: data.jobTitle,
+            cvFileId: data.cvFileId,
+            projectFileId: data.projectFileId,
+            status: EvaluationStatus.PENDING,
+          },
+        );
 
-    // Enqueue the evaluation job for async processing
-    const jobData: EvaluationJobData = {
-      evaluationId: evaluation.id,
-      jobTitle: evaluation.jobTitle,
-      cvFileId: evaluation.cvFileId,
-      projectFileId: evaluation.projectFileId,
-    };
+        // Enqueue the evaluation job for async processing
+        const jobData: EvaluationJobData = {
+          evaluationId: newEvaluation.id,
+          jobTitle: newEvaluation.jobTitle,
+          cvFileId: newEvaluation.cvFileId,
+          projectFileId: newEvaluation.projectFileId,
+        };
 
-    await this.queueService.addJob(JOB_NAMES.PROCESS_EVALUATION, jobData);
+        await this.queueService.addJob(JOB_NAMES.PROCESS_EVALUATION, jobData);
+
+        return newEvaluation;
+      },
+    );
 
     return EvaluationResponseDto.from(evaluation.id, evaluation.status);
   }

@@ -3,6 +3,7 @@ import { InjectQueue } from '@nestjs/bull';
 import type { Queue } from 'bull';
 
 import { QUEUE_NAMES } from '../../../common/constants/queue.constant';
+import type { EvaluationJobData } from '../interfaces/evaluation-job-data.interface';
 
 /**
  * Evaluation queue service for managing evaluation jobs
@@ -25,7 +26,7 @@ export class EvaluationQueueService {
   /**
    * Add job to evaluation queue
    */
-  async addJob(jobName: string, data: unknown): Promise<string> {
+  async addJob(jobName: string, data: EvaluationJobData): Promise<string> {
     const job = await this.queue.add(jobName, data);
     return job.id.toString();
   }

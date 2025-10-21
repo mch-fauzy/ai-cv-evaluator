@@ -52,12 +52,7 @@ export class EvaluationWorker {
     );
 
     try {
-      // Fetch evaluation record and update status
-      const evaluation = await this.evaluationRepository.findById(evaluationId);
-      if (!evaluation) {
-        throw new Error(`Evaluation ${evaluationId} not found`);
-      }
-
+      // Update status to IN_PROGRESS
       await this.evaluationRepository.updateStatus(
         evaluationId,
         EvaluationStatus.IN_PROGRESS,
@@ -150,7 +145,7 @@ export class EvaluationWorker {
       // Update evaluation status to FAILED
       await this.evaluationRepository.updateStatus(
         evaluationId,
-        EvaluationStatus.FAILED
+        EvaluationStatus.FAILED,
       );
 
       throw error;

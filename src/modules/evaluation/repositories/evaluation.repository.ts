@@ -19,6 +19,17 @@ export class EvaluationRepository {
     return await this.evaluationRepo.save(evaluation);
   }
 
+  /**
+   * Create evaluation within a transaction
+   */
+  async createWithTransaction(
+    queryRunner: QueryRunner,
+    data: Omit<Evaluation, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>,
+  ): Promise<Evaluation> {
+    const evaluation = queryRunner.manager.create(Evaluation, data);
+    return await queryRunner.manager.save(evaluation);
+  }
+
   async findById(id: string): Promise<Evaluation | null> {
     return await this.evaluationRepo.findOne({
       where: { id },
