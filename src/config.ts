@@ -44,6 +44,10 @@ export const openaiConfig = {
   API_KEY: process.env.OPENAI_API_KEY,
   MODEL: process.env.OPENAI_MODEL || 'gpt-4o-mini',
   EMBEDDING_MODEL: process.env.OPENAI_EMBEDDING_MODEL || 'text-embedding-3-small',
+  TEMPERATURE: Number(process.env.OPENAI_TEMPERATURE) || 0.3,
+  MAX_TOKENS: Number(process.env.OPENAI_MAX_TOKENS) || 1500,
+  SUMMARY_TEMPERATURE: Number(process.env.OPENAI_SUMMARY_TEMPERATURE) || 0.5,
+  SUMMARY_MAX_TOKENS: Number(process.env.OPENAI_SUMMARY_MAX_TOKENS) || 500,
 } as const;
 
 /**
@@ -53,4 +57,11 @@ export const chromadbConfig = {
   API_KEY: process.env.CHROMADB_API_KEY,
   TENANT: process.env.CHROMADB_TENANT,
   DATABASE: process.env.CHROMADB_DATABASE,
+} as const;
+
+/**
+ * Redis Configuration (for BullMQ job queue)
+ */
+export const redisConfig = {
+  URL: process.env.REDIS_URL || 'redis://localhost:6379',
 } as const;
