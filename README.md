@@ -143,7 +143,7 @@ The API will be available at:
 
 **Interactive Swagger Documentation is Available Online:**
 
-> 📖 **Access the API docs at:** [https://ai-cv-evaluator.onrender.com](https://ai-cv-evaluator.onrender.com)
+- **Access at:** [https://ai-cv-evaluator.onrender.com](https://ai-cv-evaluator.onrender.com)
 
 ### Local Development
 
