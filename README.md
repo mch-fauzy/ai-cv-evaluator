@@ -216,10 +216,6 @@ The API includes interactive Swagger documentation when running locally:
 
 ### Scalability
 
-**Horizontal Scaling**
-- Redis-backed distributed job queue
-- PostgreSQL read replicas support
-
 **Performance**
 - Redis caching
 - Database indexing and query optimization
