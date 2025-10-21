@@ -1,12 +1,9 @@
-import { config } from 'dotenv';
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
-
-// Load environment variables
-config();
+import { serverConfig } from './config';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
@@ -30,7 +27,7 @@ async function bootstrap(): Promise<void> {
   // Enable CORS for frontend integration
   app.enableCors();
 
-  const port = process.env.PORT ?? 3000;
+  const port = serverConfig.PORT;
   await app.listen(port);
   logger.log(`Application is running on: http://localhost:${port}`);
   logger.log(`Swagger documentation: http://localhost:${port}/api/docs`);

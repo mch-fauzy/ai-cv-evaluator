@@ -1,17 +1,17 @@
 import { Entity, Column, Index, OneToOne, JoinColumn } from 'typeorm';
 
 import { Base } from '../../../common/entities/base.entity';
-import { EvaluationJob } from '../../evaluation/entities/evaluation-job.entity';
+import { Evaluation } from '../../evaluation/entities/evaluation.entity';
 
 @Entity()
-export class Evaluation extends Base {
+export class Result extends Base {
   @Column({ type: 'uuid' })
   @Index({ unique: true })
-  jobId!: string;
+  evaluationId!: string;
 
-  @OneToOne(() => EvaluationJob)
-  @JoinColumn({ name: 'job_id' })
-  job?: EvaluationJob;
+  @OneToOne(() => Evaluation)
+  @JoinColumn({ name: 'evaluation_id' })
+  evaluation?: Evaluation;
 
   @Column({ type: 'decimal', precision: 5, scale: 2 })
   cvMatchRate!: number;

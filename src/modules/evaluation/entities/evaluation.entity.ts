@@ -2,10 +2,10 @@ import { Entity, Column, Index, ManyToOne, JoinColumn } from 'typeorm';
 
 import { Base } from '../../../common/entities/base.entity';
 import { EvaluationStatus } from '../../../common/enums/evaluation-status.enum';
-import { File } from '../../upload/entities/file.entity';
+import { Upload } from '../../upload/entities/upload.entity';
 
 @Entity()
-export class EvaluationJob extends Base {
+export class Evaluation extends Base {
   @Column({ length: 200 })
   jobTitle!: string;
 
@@ -13,17 +13,17 @@ export class EvaluationJob extends Base {
   @Index()
   cvFileId!: string;
 
-  @ManyToOne(() => File)
+  @ManyToOne(() => Upload)
   @JoinColumn({ name: 'cv_file_id' })
-  cvFile?: File;
+  cvFile?: Upload;
 
   @Column({ type: 'uuid' })
   @Index()
-  reportFileId!: string;
+  projectFileId!: string;
 
-  @ManyToOne(() => File)
-  @JoinColumn({ name: 'report_file_id' })
-  reportFile?: File;
+  @ManyToOne(() => Upload)
+  @JoinColumn({ name: 'project_file_id' })
+  projectFile?: Upload;
 
   @Column({
     type: 'varchar',

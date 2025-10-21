@@ -1,15 +1,40 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UploadController } from './upload.controller';
+
+import { CloudinaryService } from '../../../../externals/cloudinary/cloudinary.service';
+import { UploadRepository } from '../../repositories/upload.repository';
 import { UploadService } from '../../services/upload.service';
+import { UploadController } from './upload.controller';
 
 describe('UploadController', () => {
   let controller: UploadController;
   let service: UploadService;
 
+  const mockCloudinaryService = {
+    uploadFile: jest.fn(),
+    deleteFile: jest.fn(),
+  };
+
+  const mockUploadRepository = {
+    create: jest.fn(),
+    findById: jest.fn(),
+    findOrFailById: jest.fn(),
+    findByIds: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UploadController],
-      providers: [UploadService],
+      providers: [
+        UploadService,
+        {
+          provide: CloudinaryService,
+          useValue: mockCloudinaryService,
+        },
+        {
+          provide: UploadRepository,
+          useValue: mockUploadRepository,
+        },
+      ],
     }).compile();
 
     controller = module.get<UploadController>(UploadController);
@@ -21,7 +46,7 @@ describe('UploadController', () => {
   });
 
   describe('uploadFiles', () => {
-    it('should throw error - not yet implemented', async () => {
+    it('should upload files successfully', async () => {
       const mockFiles = {
         cv: [
           {
@@ -33,10 +58,54 @@ describe('UploadController', () => {
             size: 1000,
           } as Express.Multer.File,
         ],
-        report: [
+        project: [
           {
-            fieldname: 'report',
-            originalname: 'test-report.pdf',
+            fieldname: 'project',
+            originalname: 'test-project.pdf',
+            encoding: '7bit',
+            mimetype: 'application/pdf',
+            buffer: Buffer.from('test'),
+            size: 1000,
+          } as Express.Multer.File,
+        ],
+      };
+
+      const mockCvFileId = '550e8400-e29b-41d4-a716-446655440000';
+      const mockProjectFileId = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
+
+      mockCloudinaryService.uploadFile.mockResolvedValueOnce({
+        publicId: 'cv/test-cv',
+        url: 'https://cloudinary.com/cv/test-cv.pdf',
+        fileSize: 1000,
+      });
+
+      mockCloudinaryService.uploadFile.mockResolvedValueOnce({
+        publicId: 'project/test-project',
+        url: 'https://cloudinary.com/project/test-project.pdf',
+        fileSize: 1000,
+      });
+
+      mockUploadRepository.create
+        .mockResolvedValueOnce({ id: mockCvFileId })
+        .mockResolvedValueOnce({ id: mockProjectFileId });
+
+      const result = await controller.uploadFiles(mockFiles);
+
+      expect(result).toEqual({
+        message: 'Uploaded files successfully',
+        data: {
+          cvFileId: mockCvFileId,
+          projectFileId: mockProjectFileId,
+        },
+      });
+    });
+
+    it('should throw BadRequestException when CV is missing', async () => {
+      const mockFiles = {
+        project: [
+          {
+            fieldname: 'project',
+            originalname: 'test-project.pdf',
             encoding: '7bit',
             mimetype: 'application/pdf',
             buffer: Buffer.from('test'),
@@ -46,25 +115,8 @@ describe('UploadController', () => {
       };
 
       await expect(controller.uploadFiles(mockFiles)).rejects.toThrow(
-        'Upload functionality not yet implemented - Stage 2',
+        'Both CV and project files are required',
       );
-    });
-
-    it('should throw BadRequestException when CV is missing', async () => {
-      const mockFiles = {
-        report: [
-          {
-            fieldname: 'report',
-            originalname: 'test-report.pdf',
-            encoding: '7bit',
-            mimetype: 'application/pdf',
-            buffer: Buffer.from('test'),
-            size: 1000,
-          } as Express.Multer.File,
-        ],
-      };
-
-      await expect(controller.uploadFiles(mockFiles)).rejects.toThrow();
     });
   });
 });

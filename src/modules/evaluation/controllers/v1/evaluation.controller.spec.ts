@@ -26,7 +26,7 @@ describe('EvaluationController', () => {
       const dto: CreateEvaluationDto = {
         jobTitle: 'Senior Backend Developer',
         cvFileId: '550e8400-e29b-41d4-a716-446655440000',
-        reportFileId: '660e8400-e29b-41d4-a716-446655440001',
+        projectFileId: '660e8400-e29b-41d4-a716-446655440001',
       };
 
       await expect(controller.createEvaluation(dto)).rejects.toThrow(

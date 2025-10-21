@@ -2,14 +2,14 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { ResultController } from './controllers/v1/result.controller';
-import { Evaluation } from './entities/evaluation.entity';
-import { EvaluationRepository } from './repositories/evaluation.repository';
+import { Result } from './entities/result.entity';
+import { ResultRepository } from './repositories/result.repository';
 import { ResultService } from './services/result.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Evaluation])],
+  imports: [TypeOrmModule.forFeature([Result])],
   controllers: [ResultController],
-  providers: [ResultService, EvaluationRepository],
-  exports: [ResultService, EvaluationRepository],
+  providers: [ResultService, ResultRepository],
+  exports: [ResultService, ResultRepository],
 })
 export class ResultModule {}

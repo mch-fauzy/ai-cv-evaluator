@@ -1,8 +1,7 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
-import { postgresConfig } from '../configs/postgres.config';
-import { serverConfig } from '../configs/server.config';
+import { postgresConfig } from '../config';
 
 export const typeOrmConfig: DataSourceOptions = {
   type: 'postgres',
@@ -16,12 +15,12 @@ export const typeOrmConfig: DataSourceOptions = {
         rejectUnauthorized: postgresConfig.SSL_REJECT_UNAUTHORIZED,
       }
     : false,
-  entities: ['src/modules/**/*.entity{.ts,.js}', 'src/common/**/*.entity{.ts,.js}'],
+  entities: [__dirname + '/../**/*.entity{.ts,.js}'],
   synchronize: postgresConfig.SYNCHRONIZE,
   namingStrategy: new SnakeNamingStrategy(),
-  migrations: ['src/database/migrations/*{.ts,.js}'],
+  migrations: [__dirname + '/migrations/*{.ts,.js}'],
   extra: {
-    options: `-c timezone=${serverConfig.TIMEZONE}`,
+    options: `-c timezone=${postgresConfig.TIMEZONE}`,
   },
 };
 

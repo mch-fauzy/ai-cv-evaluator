@@ -1,4 +1,4 @@
 export enum FileType {
   CV = 'cv',
-  REPORT = 'report',
+  PROJECT = 'project',
 }

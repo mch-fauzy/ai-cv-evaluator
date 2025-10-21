@@ -5,21 +5,21 @@ import { z } from 'zod';
  */
 export const uploadResponseSchema = z.object({
   cvFileId: z.uuid(),
-  reportFileId: z.uuid(),
+  projectFileId: z.uuid(),
 });
 
 /**
  * Upload response DTO
- * Returns file IDs for uploaded CV and project report
+ * Returns file IDs for uploaded CV and project file
  */
 export class UploadResponseDto {
   cvFileId!: string;
-  reportFileId!: string;
+  projectFileId!: string;
 
-  static from(cvFileId: string, reportFileId: string): UploadResponseDto {
+  static from(cvFileId: string, projectFileId: string): UploadResponseDto {
     const dto = new UploadResponseDto();
     dto.cvFileId = cvFileId;
-    dto.reportFileId = reportFileId;
+    dto.projectFileId = projectFileId;
     return dto;
   }
 }

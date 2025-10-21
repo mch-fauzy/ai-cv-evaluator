@@ -7,7 +7,7 @@ import { z } from 'zod';
 export const createEvaluationSchema = z.object({
   jobTitle: z.string().min(1).max(200),
   cvFileId: z.uuid(),
-  reportFileId: z.uuid(),
+  projectFileId: z.uuid(),
 });
 
 /**

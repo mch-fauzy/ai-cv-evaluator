@@ -4,7 +4,7 @@ import { Base } from '../../../common/entities/base.entity';
 import { FileType } from '../../../common/enums/file-type.enum';
 
 @Entity()
-export class File extends Base {
+export class Upload extends Base {
   @Column()
   cloudinaryPublicId!: string;
 
