@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 
-import { cloudinaryConfig } from '../../config';
+import { cloudinaryConfig } from '../../../../config';
 
 export interface CloudinaryUploadResult {
   publicId: string;

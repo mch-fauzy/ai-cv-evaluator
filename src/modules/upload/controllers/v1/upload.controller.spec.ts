@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { CloudinaryService } from '../../../../externals/cloudinary/cloudinary.service';
+import { CloudinaryService } from '../../../externals/cloudinary/services/cloudinary.service';
 import { UploadRepository } from '../../repositories/upload.repository';
 import { UploadService } from '../../services/upload.service';
 import { UploadController } from './upload.controller';

@@ -8,8 +8,8 @@ import { EvaluationWorker } from './evaluation.worker';
 import { EvaluationRepository } from '../repositories/evaluation.repository';
 import { ResultRepository } from '../../result/repositories/result.repository';
 import { UploadRepository } from '../../upload/repositories/upload.repository';
-import { OpenAIService } from '../../../externals/openai/openai.service';
-import { ChromaDBService } from '../../../externals/chromadb/chromadb.service';
+import { OpenAIService } from '../../externals/openai/services/openai.service';
+import { ChromaDBService } from '../../externals/chromadb/services/chromadb.service';
 import { EvaluationStatus } from '../../../common/enums/evaluation-status.enum';
 
 // Mock external modules

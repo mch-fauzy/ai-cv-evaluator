@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { CHROMA_COLLECTIONS } from '../../common/constants/chromadb.constant';
+import { CHROMA_COLLECTIONS } from '../../../../common/constants/chromadb.constant';
 import { ChromaDBService } from './chromadb.service';
 
 describe('ChromaDBService', () => {

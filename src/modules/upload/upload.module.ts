@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { CloudinaryModule } from '../../externals/cloudinary/cloudinary.module';
+import { CloudinaryModule } from '../externals/cloudinary/cloudinary.module';
 import { UploadController } from './controllers/v1/upload.controller';
 import { Upload } from './entities/upload.entity';
 import { UploadRepository } from './repositories/upload.repository';

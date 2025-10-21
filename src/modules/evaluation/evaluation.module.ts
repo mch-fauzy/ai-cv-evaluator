@@ -3,8 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bull';
 
 import { UploadModule } from '../upload/upload.module';
-import { OpenAIModule } from '../../externals/openai/openai.module';
-import { ChromaDBModule } from '../../externals/chromadb/chromadb.module';
+import { OpenAIModule } from '../externals/openai/openai.module';
+import { ChromaDBModule } from '../externals/chromadb/chromadb.module';
 import { EvaluationController } from './controllers/v1/evaluation.controller';
 import { Evaluation } from './entities/evaluation.entity';
 import { Result } from '../result/entities/result.entity';

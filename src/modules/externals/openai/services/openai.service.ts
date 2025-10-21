@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import OpenAI from 'openai';
 
-import { openaiConfig } from '../../config';
+import { openaiConfig } from '../../../../config';
 
 /**
  * OpenAI service for GPT-based AI operations

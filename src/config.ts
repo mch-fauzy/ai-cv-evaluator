@@ -41,7 +41,7 @@ export const cloudinaryConfig = {
  * OpenAI Configuration
  */
 export const openaiConfig = {
-  API_KEY: process.env.OPENAI_API_KEY,
+  API_KEY: process.env.OPENAI_API_KEY || 'your_api_key',
   MODEL: process.env.OPENAI_MODEL || 'gpt-4o-mini',
   EMBEDDING_MODEL: process.env.OPENAI_EMBEDDING_MODEL || 'text-embedding-3-small',
   TEMPERATURE: Number(process.env.OPENAI_TEMPERATURE) || 0.3,
@@ -54,9 +54,9 @@ export const openaiConfig = {
  * ChromaDB Configuration
  */
 export const chromadbConfig = {
-  API_KEY: process.env.CHROMADB_API_KEY,
-  TENANT: process.env.CHROMADB_TENANT,
-  DATABASE: process.env.CHROMADB_DATABASE,
+  API_KEY: process.env.CHROMADB_API_KEY || 'your_api_key',
+  TENANT: process.env.CHROMADB_TENANT || 'your_tenant',
+  DATABASE: process.env.CHROMADB_DATABASE || 'your_database',
 } as const;
 
 /**

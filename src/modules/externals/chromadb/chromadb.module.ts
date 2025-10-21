@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 
-import { ChromaDBService } from './chromadb.service';
+import { ChromaDBService } from './services/chromadb.service';
 
 @Module({
   providers: [ChromaDBService],

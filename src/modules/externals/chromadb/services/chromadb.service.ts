@@ -1,13 +1,13 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CloudClient } from 'chromadb';
-import { DefaultEmbeddingFunction } from '@chroma-core/default-embed';
 
 import {
   CHROMA_COLLECTIONS,
   CHROMA_DEFAULTS,
   CHROMA_DOCUMENT_TYPES,
-} from '../../common/constants/chromadb.constant';
-import { chromadbConfig } from '../../config';
+} from '../../../../common/constants/chromadb.constant';
+import { chromadbConfig, openaiConfig } from '../../../../config';
+import { OpenAIEmbeddingFunction } from '../utils/chromadb-openai-embedding.util';
 
 /**
  * ChromaDB service for RAG (Retrieval-Augmented Generation)
@@ -17,7 +17,7 @@ import { chromadbConfig } from '../../config';
 export class ChromaDBService {
   private readonly client: CloudClient;
   private readonly collectionName = CHROMA_COLLECTIONS.EVALUATION_CONTEXT;
-  private readonly embeddingFunction = new DefaultEmbeddingFunction();
+  private readonly embeddingFunction: OpenAIEmbeddingFunction;
 
   constructor() {
     this.client = new CloudClient({
@@ -25,6 +25,12 @@ export class ChromaDBService {
       tenant: chromadbConfig.TENANT,
       database: chromadbConfig.DATABASE,
     });
+
+    // Use OpenAI embeddings (lightweight, no local models)
+    this.embeddingFunction = new OpenAIEmbeddingFunction(
+      openaiConfig.API_KEY,
+      openaiConfig.EMBEDDING_MODEL,
+    );
   }
 
   /**
@@ -207,6 +213,7 @@ export class ChromaDBService {
     try {
       const collection = await this.client.getCollection({
         name: this.collectionName,
+        embeddingFunction: this.embeddingFunction,
       });
 
       const count = await collection.count();

@@ -1,9 +1,9 @@
 import { CloudClient } from 'chromadb';
-import { DefaultEmbeddingFunction } from '@chroma-core/default-embed';
 import { Logger } from '@nestjs/common';
 
-import { chromadbConfig } from '../../../config';
-import { CHROMA_COLLECTIONS, CHROMA_DOCUMENT_TYPES } from '../../../common/constants/chromadb.constant';
+import { chromadbConfig, openaiConfig } from '../../../../config';
+import { CHROMA_COLLECTIONS, CHROMA_DOCUMENT_TYPES } from '../../../../common/constants/chromadb.constant';
+import { OpenAIEmbeddingFunction } from '../utils/chromadb-openai-embedding.util';
 
 /**
  * Setup script for ChromaDB collection initialization
@@ -12,8 +12,8 @@ import { CHROMA_COLLECTIONS, CHROMA_DOCUMENT_TYPES } from '../../../common/const
 export class ChromaDBSetup {
   private readonly logger = new Logger(ChromaDBSetup.name);
   private readonly client: CloudClient;
-  private readonly embeddingFunction = new DefaultEmbeddingFunction();
   private readonly collectionName = CHROMA_COLLECTIONS.EVALUATION_CONTEXT;
+  private readonly embeddingFunction: OpenAIEmbeddingFunction;
 
   constructor() {
     this.client = new CloudClient({
@@ -21,6 +21,12 @@ export class ChromaDBSetup {
       tenant: chromadbConfig.TENANT,
       database: chromadbConfig.DATABASE,
     });
+
+    // Use OpenAI embeddings (lightweight, no local models)
+    this.embeddingFunction = new OpenAIEmbeddingFunction(
+      openaiConfig.API_KEY,
+      openaiConfig.EMBEDDING_MODEL,
+    );
   }
 
   /**
@@ -82,15 +88,54 @@ export class ChromaDBSetup {
 
     const sampleData = {
       ids: [
+        'job-product-engineer-backend',
         'job-backend-senior',
         'job-fullstack-mid',
         'job-frontend-senior',
+        'case-ai-cv-evaluator',
         'case-ecommerce-api',
         'case-task-management',
         'case-social-feed',
       ],
       documents: [
         // Job Descriptions
+        `Product Engineer (Backend) - Rakamin 2025
+
+About the Job:
+Build new product features alongside frontend engineers and product managers using Agile methodology. Write clean, efficient code and work on AI-powered systems, designing and orchestrating how large language models (LLMs) integrate into Rakamin's product ecosystem.
+
+Examples of Work:
+- Collaborate with frontend engineers and 3rd parties to build robust backend solutions supporting configurable and cross-platform integration
+- Develop and maintain server-side logic for central databases, ensuring high performance and fast response times
+- Design and fine-tune AI prompts aligned with product requirements
+- Build LLM chaining flows where model outputs feed into subsequent models
+- Implement Retrieval-Augmented Generation (RAG) using vector databases for context retrieval
+- Handle long-running AI processes with async workers and retry mechanisms
+- Design safeguards for 3rd-party API failures and unpredictable LLM outputs
+- Use AI tools to boost productivity (AI-assisted code generation, QA, bots)
+- Write reusable, testable, efficient code
+- Strengthen test coverage with RSpec
+- Manage full product lifecycles: design → build → deploy → maintain
+- Provide input on technical feasibility and trade-offs
+- Engage with users and stakeholders to refine backend and AI-driven improvements
+
+Required Knowledge and Skills:
+- Backend frameworks: Node.js, Django, or Rails
+- Databases: MySQL, PostgreSQL, MongoDB
+- RESTful APIs
+- Security compliance
+- Cloud platforms: AWS, Google Cloud, Azure
+- Server-side languages: Java, Python, Ruby, JavaScript
+- Frontend understanding
+- Authentication & authorization across systems
+- Scalable application design
+- Database schema design
+- Automated testing & unit testing
+- Familiarity with LLM APIs, embeddings, vector databases, and prompt design
+
+Culture:
+Managers of One - autonomous and empowered team members who own outcomes. Remote role with flexibility to work from anywhere in Indonesia.`,
+
         `Senior Backend Developer
 Requirements:
 - 5+ years of professional backend development experience
@@ -131,6 +176,25 @@ Requirements:
 - Knowledge of build tools (Webpack, Vite)`,
 
         // Case Study Briefs
+        `AI-Powered CV Evaluator System
+Build an intelligent CV evaluation platform with AI integration:
+- PDF parsing for CV and project portfolio documents
+- File upload management with Cloudinary integration
+- AI-powered CV analysis using OpenAI GPT models
+- Retrieval-Augmented Generation (RAG) with ChromaDB for context-aware evaluation
+- Job description semantic search using vector embeddings
+- Case study brief matching with vector similarity
+- Asynchronous job processing with Bull Queue and Redis
+- Evaluation scoring system (technical skills, experience, project quality)
+- AI prompt engineering for accurate CV assessment
+- PostgreSQL database with TypeORM
+- RESTful API with comprehensive Swagger documentation
+- Background workers for long-running AI tasks
+- Error handling for LLM API failures
+- Unit and integration tests with >80% coverage
+- NestJS backend with TypeScript
+- Deployment on Vercel with serverless architecture`,
+
         `E-Commerce REST API Project
 Build a scalable e-commerce backend with:
 - User authentication and authorization
@@ -180,6 +244,8 @@ Implement a performant social media feed with:
         { type: CHROMA_DOCUMENT_TYPES.JOB_DESCRIPTION },
         { type: CHROMA_DOCUMENT_TYPES.JOB_DESCRIPTION },
         { type: CHROMA_DOCUMENT_TYPES.JOB_DESCRIPTION },
+        { type: CHROMA_DOCUMENT_TYPES.JOB_DESCRIPTION },
+        { type: CHROMA_DOCUMENT_TYPES.CASE_STUDY },
         { type: CHROMA_DOCUMENT_TYPES.CASE_STUDY },
         { type: CHROMA_DOCUMENT_TYPES.CASE_STUDY },
         { type: CHROMA_DOCUMENT_TYPES.CASE_STUDY },

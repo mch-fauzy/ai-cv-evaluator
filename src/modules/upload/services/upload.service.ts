@@ -3,7 +3,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { FileType } from '../../../common/enums/file-type.enum';
 import { Paginated } from '../../../common/interfaces/api-response.interface';
 import { PaginationUtil } from '../../../common/utils/pagination.util';
-import { CloudinaryService } from '../../../externals/cloudinary/cloudinary.service';
+import { CloudinaryService } from '../../externals/cloudinary/services/cloudinary.service';
 import { UploadQueryDto } from '../dto/upload-query.dto';
 import { UploadResponseDto } from '../dto/response/upload-response.dto';
 import { UploadListItemDto } from '../dto/response/upload-list-item.dto';
