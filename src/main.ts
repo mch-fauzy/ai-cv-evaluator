@@ -22,7 +22,8 @@ async function bootstrap(): Promise<void> {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+  const swaggerPath = process.env.NODE_ENV === 'production' ? '' : 'api/docs';
+  SwaggerModule.setup(swaggerPath, app, document);
 
   // Enable CORS for frontend integration
   app.enableCors();
@@ -30,7 +31,7 @@ async function bootstrap(): Promise<void> {
   const port = serverConfig.PORT;
   await app.listen(port);
   logger.log(`Application is running on: http://localhost:${port}`);
-  logger.log(`Swagger documentation: http://localhost:${port}/api/docs`);
+  logger.log(`Swagger documentation: http://localhost:${port}/${swaggerPath}`);
 }
 
 void bootstrap();
