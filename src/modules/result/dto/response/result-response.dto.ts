@@ -49,11 +49,3 @@ export class ResultResponseDto {
     return dto;
   }
 }
-
-// Type aliases for backward compatibility and clarity
-export type ResultResponse = z.infer<typeof resultResponseSchema>;
-
-// Keep old class names as aliases for backward compatibility
-export const ResultResponsePendingDto = ResultResponseDto;
-export const ResultResponseCompletedDto = ResultResponseDto;
-export const ResultResponseFailedDto = ResultResponseDto;

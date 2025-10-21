@@ -30,4 +30,18 @@ export class UploadRepository {
   async findByIds(ids: string[]): Promise<Upload[]> {
     return await this.uploadRepo.findBy({ id: In(ids) });
   }
+
+  async getList(page: number, limit: number): Promise<{ uploads: Upload[]; totalUploads: number }> {
+    const skip = (page - 1) * limit;
+
+    const [uploads, totalUploads] = await this.uploadRepo.findAndCount({
+      skip,
+      take: limit,
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+
+    return { uploads, totalUploads };
+  }
 }

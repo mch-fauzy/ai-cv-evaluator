@@ -1,8 +1,10 @@
 import {
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
+  Query,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
@@ -11,13 +13,16 @@ import {
   ApiBody,
   ApiConsumes,
   ApiOperation,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import type { UploadResponseDto } from '../../dto/response/upload-response.dto';
 import { UploadService } from '../../services/upload.service';
-import type { ApiResult } from '../../../../common/interfaces/api-response.interface';
+import type { ApiResult, Paginated } from '../../../../common/interfaces/api-response.interface';
 import { API_RESPONSE_MESSAGE } from '../../../../common/constants/api-response-message.constant';
+import { UploadQueryDto } from '../../dto/upload-query.dto';
+import type { UploadListItemDto } from '../../dto/response/upload-list-item.dto';
 
 @ApiTags('upload')
 @Controller('upload')
@@ -95,6 +100,69 @@ export class UploadController {
     const data = await this.uploadService.uploadFiles(files);
     return {
       message: API_RESPONSE_MESSAGE.SUCCESS_UPLOAD_DATA('files'),
+      data,
+    };
+  }
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get list of uploads with pagination' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number (default: 1)',
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Number of items per page (default: 10, max: 100)',
+    example: 10,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Successfully retrieved upload list',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'Successfully retrieved uploads' },
+        data: {
+          type: 'object',
+          properties: {
+            metadata: {
+              type: 'object',
+              properties: {
+                page: { type: 'number', example: 1 },
+                perPage: { type: 'number', example: 10 },
+                total: { type: 'number', example: 50 },
+                totalPage: { type: 'number', example: 5 },
+              },
+            },
+            items: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { type: 'string', format: 'uuid' },
+                  cloudinaryUrl: { type: 'string' },
+                  fileType: { type: 'string', enum: ['CV', 'PROJECT'] },
+                  originalName: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  })
+  async getList(
+    @Query() query: UploadQueryDto,
+  ): Promise<ApiResult<Paginated<UploadListItemDto>>> {
+    const data = await this.uploadService.getList(query);
+    return {
+      message: API_RESPONSE_MESSAGE.SUCCESS_GET_DATA('uploads'),
       data,
     };
   }

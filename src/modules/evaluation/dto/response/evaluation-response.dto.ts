@@ -25,5 +25,3 @@ export class EvaluationResponseDto {
     return dto;
   }
 }
-
-export type EvaluationResponse = z.infer<typeof evaluationResponseSchema>;

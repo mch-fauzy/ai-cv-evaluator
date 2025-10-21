@@ -37,5 +37,3 @@ export class EvaluationResultDto {
     return dto;
   }
 }
-
-export type EvaluationResult = z.infer<typeof evaluationResultSchema>;

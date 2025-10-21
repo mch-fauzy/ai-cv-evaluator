@@ -15,5 +15,3 @@ export const createEvaluationSchema = z.object({
  * Initiates an async evaluation job
  */
 export class CreateEvaluationDto extends createZodDto(createEvaluationSchema) {}
-
-export type CreateEvaluation = z.infer<typeof createEvaluationSchema>;

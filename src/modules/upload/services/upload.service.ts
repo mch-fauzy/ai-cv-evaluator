@@ -1,8 +1,12 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 
 import { FileType } from '../../../common/enums/file-type.enum';
+import { Paginated } from '../../../common/interfaces/api-response.interface';
+import { PaginationUtil } from '../../../common/utils/pagination.util';
 import { CloudinaryService } from '../../../externals/cloudinary/cloudinary.service';
+import { UploadQueryDto } from '../dto/upload-query.dto';
 import { UploadResponseDto } from '../dto/response/upload-response.dto';
+import { UploadListItemDto } from '../dto/response/upload-list-item.dto';
 import { UploadRepository } from '../repositories/upload.repository';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -83,6 +87,26 @@ export class UploadService {
     });
 
     return UploadResponseDto.from(cvFileRecord.id, projectFileRecord.id);
+  }
+
+  /**
+   * Get paginated list of uploads
+   * Returns upload records with pagination metadata
+   */
+  async getList(query: UploadQueryDto): Promise<Paginated<UploadListItemDto>> {
+    const { uploads, totalUploads } = await this.uploadRepository.getList(
+      query.page,
+      query.limit,
+    );
+
+    return {
+      metadata: PaginationUtil.mapMetadata({
+        count: totalUploads,
+        page: query.page,
+        perPage: query.limit,
+      }),
+      items: UploadListItemDto.fromList(uploads),
+    };
   }
 }
 

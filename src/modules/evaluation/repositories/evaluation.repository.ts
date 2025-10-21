@@ -81,4 +81,23 @@ export class EvaluationRepository {
   ): Promise<void> {
     await queryRunner.manager.update(Evaluation, id, { status });
   }
+
+  async getList(
+    page: number,
+    limit: number,
+  ): Promise<{ evaluations: Evaluation[]; totalEvaluations: number }> {
+    const skip = (page - 1) * limit;
+
+    const [evaluations, totalEvaluations] =
+      await this.evaluationRepo.findAndCount({
+        relations: ['cvFile', 'projectFile'],
+        skip,
+        take: limit,
+        order: {
+          createdAt: 'DESC',
+        },
+      });
+
+    return { evaluations, totalEvaluations };
+  }
 }

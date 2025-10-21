@@ -1,9 +1,10 @@
 /**
- * Pagination metadata interface
+ * Pagination metadata interface.
+ * Contains information about pagination state.
  */
 export interface PaginationMetadata {
   page: number;
   perPage: number;
   total: number;
-  totalPages: number;
+  totalPage: number;
 }

@@ -23,5 +23,3 @@ export class UploadResponseDto {
     return dto;
   }
 }
-
-export type UploadResponse = z.infer<typeof uploadResponseSchema>;
